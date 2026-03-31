@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Account Selection — Interactive Mockup</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, 'Salesforce Sans', Arial, sans-serif;
+  background: #eef0f4;
+  min-height: 100vh;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 20px 16px 60px;
+  color: #1a1a2e;
+}
+
+/* ── Page chrome ── */
+.page-header {
+  width: 760px; display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px;
+}
+.page-header h1 { font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: .5px; font-weight: 500; }
+.jump-links { display: flex; gap: 6px; flex-wrap: wrap; }
+.jump-link {
+  font-size: 11px; padding: 3px 10px; border-radius: 10px;
+  background: #fff; border: 1px solid #ddd; color: #5867e8; cursor: pointer;
+  transition: all .15s;
+}
+.jump-link:hover { background: #5867e8; color: #fff; border-color: #5867e8; }
+
+/* ── VoiceCall context bar ── */
+.vc-bar {
+  width: 760px; background: #fff;
+  border: 1px solid #ddd; border-radius: 8px 8px 0 0; border-bottom: none;
+  padding: 9px 20px; display: flex; align-items: center; gap: 10px; font-size: 12px; color: #666;
+}
+.vc-name { font-weight: 700; color: #1a1a2e; font-size: 13px; }
+.vc-dot  { color: #ccc; }
+.vc-pill { border-radius: 12px; padding: 2px 10px; font-size: 11px; font-weight: 600; }
+.vc-pill.inbound { background: #e8f5e9; color: #27ae60; }
+.vc-live { color: #27ae60; font-weight: 600; }
+.vc-phone { font-family: monospace; font-size: 13px; color: #333; font-weight: 600; }
+
+/* ── Panel ── */
+.panel {
+  width: 760px; background: #fff;
+  border: 1px solid #ddd; border-radius: 0 0 10px 10px;
+  box-shadow: 0 4px 24px rgba(88,103,232,.08);
+  overflow: hidden; display: flex; flex-direction: column; min-height: 540px;
+}
+
+/* ── Header ── */
+.panel-header {
+  background: linear-gradient(135deg, #1a1a2e 0%, #2d2b55 100%);
+  padding: 18px 24px 14px; color: #fff;
+}
+.panel-header-row { display: flex; align-items: flex-start; justify-content: space-between; }
+.panel-header h2 { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+.panel-header p  { font-size: 12px; opacity: .75; line-height: 1.5; max-width: 480px; }
+.phone-badge {
+  background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2);
+  border-radius: 8px; padding: 7px 14px; font-size: 12px; color: rgba(255,255,255,.9);
+  display: flex; flex-direction: column; align-items: flex-end; flex-shrink: 0;
+}
+.phone-badge .label { font-size: 10px; opacity: .7; text-transform: uppercase; letter-spacing: .4px; margin-bottom: 2px; }
+.phone-badge .number { font-family: monospace; font-weight: 700; font-size: 14px; }
+
+/* ── State tag ── */
+.state-tag {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: rgba(255,255,255,.15); border-radius: 20px;
+  padding: 3px 10px 3px 8px; font-size: 11px; color: rgba(255,255,255,.9);
+  font-weight: 600; margin-top: 8px;
+}
+.state-dot { width: 6px; height: 6px; border-radius: 50%; background: #5cf08a; }
+
+/* ── Body ── */
+.panel-body {
+  padding: 20px 24px; flex: 1; overflow-y: auto;
+  max-height: 420px; display: flex; flex-direction: column; gap: 12px;
+}
+
+/* ── Account card ── */
+.accounts-list { display: flex; flex-direction: column; gap: 10px; }
+.account-card {
+  border: 2px solid #e8e8f0; border-radius: 10px; padding: 14px 16px;
+  display: flex; align-items: center; gap: 14px; cursor: pointer;
+  transition: all .18s; background: #fff;
+}
+.account-card:hover { border-color: #5867e8; background: #f7f6ff; box-shadow: 0 3px 12px rgba(88,103,232,.12); }
+.account-card.selected { border-color: #5867e8; background: #f0eefb; }
+
+.acct-avatar {
+  width: 42px; height: 42px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 15px; color: #fff;
+}
+.acct-info { flex: 1; min-width: 0; }
+.acct-name { font-size: 14px; font-weight: 700; color: #1a1a2e; }
+.acct-meta { display: flex; gap: 10px; margin-top: 4px; flex-wrap: wrap; }
+.acct-meta-item { font-size: 11px; color: #666; display: flex; align-items: center; gap: 4px; }
+.acct-meta-item span { opacity: .7; }
+.acct-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
+.status-badge {
+  padding: 2px 9px; border-radius: 10px; font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .4px;
+}
+.status-badge.active   { background: #e8f5e9; color: #27ae60; }
+.status-badge.frozen   { background: #e3eaff; color: #5867e8; }
+.status-badge.inactive { background: #f3f3f3; color: #888; }
+.select-btn {
+  padding: 5px 14px; border-radius: 7px; font-size: 12px; font-weight: 600;
+  border: 1.5px solid #5867e8; background: #fff; color: #5867e8; cursor: pointer;
+  transition: all .15s; white-space: nowrap;
+}
+.select-btn:hover { background: #5867e8; color: #fff; }
+.account-card.selected .select-btn { background: #5867e8; color: #fff; }
+
+/* ── Match count header ── */
+.match-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-bottom: 4px;
+}
+.match-label { font-size: 12px; font-weight: 700; color: #5867e8; }
+.search-diff-link {
+  font-size: 12px; color: #888; text-decoration: underline; cursor: pointer;
+  transition: color .15s; background: none; border: none; font-family: inherit;
+}
+.search-diff-link:hover { color: #5867e8; }
+
+/* ── Divider ── */
+.divider { border: none; border-top: 1px solid #eee; margin: 6px 0; }
+
+/* ── Non-Affirm chip ── */
+.non-affirm-row {
+  display: flex; align-items: center; justify-content: center;
+  gap: 8px; padding-top: 4px;
+}
+.non-affirm-row span { font-size: 11px; color: #aaa; }
+.non-affirm-btn {
+  font-size: 12px; font-weight: 600; color: #888; background: none;
+  border: 1.5px solid #e0e0e0; border-radius: 7px; padding: 5px 14px;
+  cursor: pointer; transition: all .15s; font-family: inherit;
+}
+.non-affirm-btn:hover { border-color: #888; color: #444; background: #f7f7f7; }
+
+/* ── Empty state ── */
+.empty-state {
+  text-align: center; padding: 18px 0 10px;
+}
+.empty-icon { font-size: 36px; margin-bottom: 10px; }
+.empty-title { font-size: 14px; font-weight: 700; color: #1a1a2e; margin-bottom: 6px; }
+.empty-desc  { font-size: 12px; color: #888; line-height: 1.5; max-width: 360px; margin: 0 auto 16px; }
+
+/* ── Search form ── */
+.search-form { display: flex; flex-direction: column; gap: 12px; }
+.search-form-title { font-size: 13px; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+.field-group { display: flex; flex-direction: column; gap: 4px; }
+.field-label { font-size: 11px; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: .4px; }
+.field-input {
+  padding: 9px 13px; border: 1.5px solid #d0d0e0; border-radius: 8px;
+  font-size: 13px; font-family: inherit; color: #1a1a2e; transition: border-color .15s;
+  outline: none;
+}
+.field-input:focus { border-color: #5867e8; box-shadow: 0 0 0 3px rgba(88,103,232,.1); }
+.field-hint { font-size: 11px; color: #aaa; margin-top: 2px; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.search-submit-btn {
+  padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 700;
+  background: linear-gradient(135deg, #5867e8, #7b5ce5); color: #fff;
+  border: none; cursor: pointer; transition: all .15s;
+  box-shadow: 0 3px 10px rgba(88,103,232,.25); align-self: flex-end;
+}
+.search-submit-btn:hover { box-shadow: 0 5px 16px rgba(88,103,232,.4); transform: translateY(-1px); }
+
+/* ── Searching spinner ── */
+.searching-row {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; color: #888; padding: 6px 0;
+}
+.spinner {
+  width: 14px; height: 14px; border: 2px solid #e0e0e0;
+  border-top-color: #5867e8; border-radius: 50%;
+  animation: spin .7s linear infinite; flex-shrink: 0;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Non-affirm form ── */
+.non-affirm-form { display: flex; flex-direction: column; gap: 14px; }
+.non-affirm-header {
+  background: #f5f3ff; border: 1.5px solid #d8d2f8; border-radius: 10px;
+  padding: 12px 16px; display: flex; gap: 10px; align-items: flex-start;
+}
+.non-affirm-header-icon { font-size: 20px; flex-shrink: 0; }
+.non-affirm-header-text { font-size: 12px; color: #444; line-height: 1.5; }
+.non-affirm-header-text b { color: #5867e8; }
+.select-reason {
+  padding: 9px 13px; border: 1.5px solid #d0d0e0; border-radius: 8px;
+  font-size: 13px; font-family: inherit; color: #1a1a2e;
+  outline: none; cursor: pointer; background: #fff; width: 100%;
+}
+.select-reason:focus { border-color: #5867e8; }
+
+/* ── Confirmed account card ── */
+.confirmed-card {
+  border: 2px solid #5867e8; border-radius: 10px; padding: 16px 18px;
+  background: linear-gradient(135deg, #f7f6ff, #f0eefb);
+}
+.confirmed-label {
+  font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .6px;
+  color: #5867e8; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
+}
+.confirmed-check {
+  width: 16px; height: 16px; border-radius: 50%; background: #5867e8;
+  display: inline-flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 10px;
+}
+.confirmed-name { font-size: 18px; font-weight: 800; color: #1a1a2e; margin-bottom: 6px; }
+.confirmed-meta { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 6px; }
+.confirmed-meta-item { font-size: 12px; color: #555; display: flex; align-items: center; gap: 5px; }
+.confirmed-meta-item .key { color: #999; font-size: 11px; }
+.change-account-link {
+  font-size: 12px; color: #5867e8; text-decoration: underline; cursor: pointer;
+  background: none; border: none; font-family: inherit; margin-top: 12px;
+  display: block;
+}
+
+/* ── Info notice ── */
+.info-notice {
+  background: #f0f6ff; border: 1.5px solid #c5d8f8; border-radius: 8px;
+  padding: 10px 14px; font-size: 12px; color: #2c5fa8; line-height: 1.5;
+  display: flex; gap: 8px; align-items: flex-start;
+}
+.info-notice-icon { flex-shrink: 0; font-size: 14px; margin-top: 1px; }
+
+/* ── Warning notice ── */
+.warn-notice {
+  background: #fffbf0; border: 1.5px solid #e8b84b; border-radius: 8px;
+  padding: 10px 14px; font-size: 12px; color: #8a5c00; line-height: 1.5;
+  display: flex; gap: 8px; align-items: flex-start;
+}
+
+/* ── Footer ── */
+.panel-footer {
+  padding: 12px 24px; border-top: 1px solid #eee;
+  display: flex; align-items: center; background: #fafafa;
+}
+.dots { display: flex; gap: 6px; align-items: center; flex: 1; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: #ddd; transition: all .2s; }
+.dot.active { background: #5867e8; width: 22px; border-radius: 4px; }
+.dot.done   { background: #7b5ce5; opacity: .45; }
+.footer-btns { display: flex; gap: 8px; }
+.btn { padding: 8px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: all .15s; font-family: inherit; }
+.btn-ghost   { background: none; border: 1.5px solid #d0d0e0; color: #666; }
+.btn-ghost:hover { border-color: #5867e8; color: #5867e8; background: #f0eefb; }
+.btn-primary { background: linear-gradient(135deg, #5867e8, #7b5ce5); color: #fff; box-shadow: 0 3px 10px rgba(88,103,232,.28); }
+.btn-primary:hover:not([disabled]) { box-shadow: 0 5px 16px rgba(88,103,232,.42); transform: translateY(-1px); }
+.btn-primary[disabled] { opacity: .4; cursor: default; transform: none; box-shadow: none; }
+
+/* ── Annotation ── */
+.annotation { width: 760px; margin-top: 16px; font-size: 11px; color: #999; line-height: 1.6; }
+.annotation b { color: #5867e8; }
+
+/* ── Transitions ── */
+.view { display: none; }
+.view.active { display: contents; }
+
+/* ── Search result count ── */
+.result-count-bar {
+  font-size: 12px; color: #666; padding: 4px 0 2px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.result-count-bar b { color: #1a1a2e; }
+.clear-search { font-size: 11px; color: #5867e8; cursor: pointer; text-decoration: underline; background: none; border: none; font-family: inherit; }
+</style>
+</head>
+<body>
+
+<!-- ── Page header ── -->
+<div class="page-header">
+  <h1>Account Selection Redesign — Interactive Mockup · c-guided-agent-account-select</h1>
+  <div class="jump-links">
+    <span class="jump-link" onclick="show('phone-match')">📞 Phone Match (3)</span>
+    <span class="jump-link" onclick="show('no-match')">🔍 No Match</span>
+    <span class="jump-link" onclick="show('manual-search')">🔎 Manual Search</span>
+    <span class="jump-link" onclick="show('non-affirm')">👤 Non-Affirm</span>
+    <span class="jump-link" onclick="show('confirmed')">✅ Confirmed</span>
+  </div>
+</div>
+
+<!-- ── VoiceCall context bar ── -->
+<div class="vc-bar">
+  <span class="vc-name" id="vc-label">Incoming Call</span>
+  <span class="vc-dot">·</span>
+  <span class="vc-phone">+1 (415) 555-0183</span>
+  <span class="vc-dot">·</span>
+  <span class="vc-pill inbound">Inbound · Disputes</span>
+  <span class="vc-dot">·</span>
+  <span style="font-size:12px;color:#666">US</span>
+  <span class="vc-dot">·</span>
+  <span class="vc-live">● Active Call</span>
+</div>
+
+<!-- ── Panel ── -->
+<div class="panel">
+
+  <!-- Header -->
+  <div class="panel-header">
+    <div class="panel-header-row">
+      <div>
+        <h2 id="panel-title">Verify Customer Identity</h2>
+        <p id="panel-subtitle">3 accounts matched the caller's phone number. Select the correct account to proceed.</p>
+        <div class="state-tag" id="state-tag">
+          <span class="state-dot"></span>
+          <span id="state-label">Phone Match</span>
+        </div>
+      </div>
+      <div class="phone-badge">
+        <span class="label">Caller ID</span>
+        <span class="number">+1 (415) 555-0183</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="panel-body" id="panel-body">
+
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+         STATE: phone-match
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <div id="view-phone-match">
+      <div class="match-header">
+        <span class="match-label">3 accounts matched this phone number</span>
+        <button class="search-diff-link" onclick="show('manual-search')">Search differently →</button>
+      </div>
+
+      <div class="accounts-list" style="margin-top:10px;">
+
+        <div class="account-card" id="card-1" onclick="selectCard(1)">
+          <div class="acct-avatar" style="background:#5867e8;">SJ</div>
+          <div class="acct-info">
+            <div class="acct-name">Sarah Johnson</div>
+            <div class="acct-meta">
+              <div class="acct-meta-item">✉ <span>s****n@gmail.com</span></div>
+              <div class="acct-meta-item">📍 <span>San Francisco, CA</span></div>
+              <div class="acct-meta-item">🆔 <span>ARI-88214-US</span></div>
+            </div>
+          </div>
+          <div class="acct-right">
+            <span class="status-badge active">Active</span>
+            <button class="select-btn" onclick="selectCard(1); event.stopPropagation()">Select</button>
+          </div>
+        </div>
+
+        <div class="account-card" id="card-2" onclick="selectCard(2)">
+          <div class="acct-avatar" style="background:#e84058;">SJ</div>
+          <div class="acct-info">
+            <div class="acct-name">S. Johnson</div>
+            <div class="acct-meta">
+              <div class="acct-meta-item">✉ <span>s.j.****7@yahoo.com</span></div>
+              <div class="acct-meta-item">📍 <span>Oakland, CA</span></div>
+              <div class="acct-meta-item">🆔 <span>ARI-55091-US</span></div>
+            </div>
+          </div>
+          <div class="acct-right">
+            <span class="status-badge frozen">Frozen</span>
+            <button class="select-btn" onclick="selectCard(2); event.stopPropagation()">Select</button>
+          </div>
+        </div>
+
+        <div class="account-card" id="card-3" onclick="selectCard(3)">
+          <div class="acct-avatar" style="background:#27ae60;">SM</div>
+          <div class="acct-info">
+            <div class="acct-name">Sarah M. Johnson-Park</div>
+            <div class="acct-meta">
+              <div class="acct-meta-item">✉ <span>sarah.m****@outlook.com</span></div>
+              <div class="acct-meta-item">📍 <span>Daly City, CA</span></div>
+              <div class="acct-meta-item">🆔 <span>ARI-30045-US</span></div>
+            </div>
+          </div>
+          <div class="acct-right">
+            <span class="status-badge active">Active</span>
+            <button class="select-btn" onclick="selectCard(3); event.stopPropagation()">Select</button>
+          </div>
+        </div>
+
+      </div>
+
+      <hr class="divider" style="margin-top:14px;">
+      <div class="non-affirm-row">
+        <span>Customer not listed?</span>
+        <button class="non-affirm-btn" onclick="show('non-affirm')">Non-Affirm Customer</button>
+      </div>
+    </div>
+
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+         STATE: no-match
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <div id="view-no-match" style="display:none;">
+      <div class="empty-state">
+        <div class="empty-icon">🔍</div>
+        <div class="empty-title">No accounts found for this number</div>
+        <div class="empty-desc">+1 (415) 555-0183 didn't match any Affirm accounts. Search manually using the customer's name, email, or ARI.</div>
+      </div>
+
+      <div class="search-form" style="max-width:480px; margin:0 auto;">
+        <div class="search-form-title">Search by customer details</div>
+        <div class="field-row">
+          <div class="field-group">
+            <label class="field-label">First Name</label>
+            <input class="field-input" type="text" placeholder="e.g. Sarah" id="nm-first">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Last Name</label>
+            <input class="field-input" type="text" placeholder="e.g. Johnson" id="nm-last">
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Email Address</label>
+          <input class="field-input" type="email" placeholder="e.g. sarah@example.com" id="nm-email">
+          <span class="field-hint">Or ARI if no email (e.g. ARI-88214-US)</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <button class="non-affirm-btn" onclick="show('non-affirm')">Non-Affirm Customer</button>
+          <button class="search-submit-btn" onclick="doSearch('no-match')">Search →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+         STATE: manual-search
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <div id="view-manual-search" style="display:none;">
+      <div class="search-form">
+        <div class="field-row">
+          <div class="field-group">
+            <label class="field-label">First Name</label>
+            <input class="field-input" type="text" placeholder="e.g. Sarah" id="ms-first" value="">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Last Name</label>
+            <input class="field-input" type="text" placeholder="e.g. Johnson" id="ms-last" value="">
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Email / ARI</label>
+          <input class="field-input" type="text" placeholder="email@example.com or ARI-XXXXX-US" id="ms-email">
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <button class="non-affirm-btn" onclick="show('non-affirm')">Non-Affirm Customer</button>
+          <button class="search-submit-btn" onclick="doSearch('manual-search')">Search →</button>
+        </div>
+      </div>
+
+      <!-- Results (hidden until search) -->
+      <div id="ms-results" style="display:none; margin-top:14px;">
+        <hr class="divider">
+        <div class="result-count-bar">
+          <span>Showing <b id="ms-count">2</b> results for "<b id="ms-query">Johnson</b>"</span>
+          <button class="clear-search" onclick="clearSearch()">Clear</button>
+        </div>
+        <div class="accounts-list" style="margin-top:10px;">
+
+          <div class="account-card" id="ms-card-1" onclick="selectMsCard(1)">
+            <div class="acct-avatar" style="background:#5867e8;">SJ</div>
+            <div class="acct-info">
+              <div class="acct-name">Sarah Johnson</div>
+              <div class="acct-meta">
+                <div class="acct-meta-item">✉ <span>s****n@gmail.com</span></div>
+                <div class="acct-meta-item">📍 <span>San Francisco, CA</span></div>
+                <div class="acct-meta-item">🆔 <span>ARI-88214-US</span></div>
+              </div>
+            </div>
+            <div class="acct-right">
+              <span class="status-badge active">Active</span>
+              <button class="select-btn" onclick="selectMsCard(1); event.stopPropagation()">Select</button>
+            </div>
+          </div>
+
+          <div class="account-card" id="ms-card-2" onclick="selectMsCard(2)">
+            <div class="acct-avatar" style="background:#e84058;">TJ</div>
+            <div class="acct-info">
+              <div class="acct-name">Tom Johnson</div>
+              <div class="acct-meta">
+                <div class="acct-meta-item">✉ <span>t.john****@hotmail.com</span></div>
+                <div class="acct-meta-item">📍 <span>Berkeley, CA</span></div>
+                <div class="acct-meta-item">🆔 <span>ARI-71204-US</span></div>
+              </div>
+            </div>
+            <div class="acct-right">
+              <span class="status-badge active">Active</span>
+              <button class="select-btn" onclick="selectMsCard(2); event.stopPropagation()">Select</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+         STATE: non-affirm
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <div id="view-non-affirm" style="display:none;">
+      <div class="non-affirm-form">
+        <div class="non-affirm-header">
+          <div class="non-affirm-header-icon">ℹ️</div>
+          <div class="non-affirm-header-text">
+            This will link the case to a <b>placeholder Non-Affirm account</b>. The case will be created with a limited data set. Use this path only when the customer has confirmed they <b>do not have an Affirm account</b>.
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            <label class="field-label">First Name <span style="color:#e84058">*</span></label>
+            <input class="field-input" type="text" placeholder="As stated by customer" id="na-first">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Last Name <span style="color:#e84058">*</span></label>
+            <input class="field-input" type="text" placeholder="As stated by customer" id="na-last">
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Email Address</label>
+          <input class="field-input" type="email" placeholder="Optional — if provided by customer" id="na-email">
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Phone Number</label>
+          <input class="field-input" type="tel" value="+1 (415) 555-0183" id="na-phone">
+          <span class="field-hint">Pre-filled from caller ID. Edit only if different.</span>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Reason <span style="color:#e84058">*</span></label>
+          <select class="select-reason" id="na-reason">
+            <option value="">— Select reason —</option>
+            <option>Customer confirmed no Affirm account exists</option>
+            <option>Unable to verify identity — no matching account</option>
+            <option>Customer disputes account ownership</option>
+            <option>Inquiry about a merchant / third-party issue</option>
+          </select>
+        </div>
+
+        <div class="warn-notice">
+          <span>⚠️</span>
+          <span>Non-Affirm cases have limited routing options and may not qualify for all dispute classifications.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+         STATE: confirmed
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <div id="view-confirmed" style="display:none;">
+      <div class="confirmed-card">
+        <div class="confirmed-label">
+          <span class="confirmed-check">✓</span>
+          Customer Identified
+        </div>
+        <div class="confirmed-name" id="confirmed-name">Sarah Johnson</div>
+        <div>
+          <div class="confirmed-meta">
+            <div class="confirmed-meta-item"><span class="key">ARI</span> ARI-88214-US</div>
+            <div class="confirmed-meta-item"><span class="key">Status</span> <span style="color:#27ae60;font-weight:700;">Active</span></div>
+            <div class="confirmed-meta-item"><span class="key">Location</span> San Francisco, CA</div>
+            <div class="confirmed-meta-item"><span class="key">Open Cases</span> 2</div>
+          </div>
+        </div>
+        <button class="change-account-link" onclick="show('phone-match')">← Change account selection</button>
+      </div>
+
+      <div class="info-notice" style="margin-top:12px;">
+        <span class="info-notice-icon">ℹ️</span>
+        <span>The VoiceCall will be linked to this account when you apply the final classification. Clicking <b>Next</b> will take you to the guided dispute workflow.</span>
+      </div>
+
+      <div style="margin-top:12px; border:1.5px solid #f5c842; border-radius:10px; padding:14px; background:#fffdf0;">
+        <div style="font-size:12px; font-weight:700; color:#c77800; margin-bottom:10px;">2 Open Cases Found for this Account</div>
+        <div style="display:flex;flex-direction:column;gap:0;">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f0e8c8;font-size:12px;">
+            <div>
+              <span style="font-weight:700;color:#5867e8;">00413921</span>
+              <span style="margin-left:8px;color:#666;">Credit Report Dispute – Late Payment</span>
+            </div>
+            <span style="padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;background:#fce4e8;color:#ba0517;">Open</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;font-size:12px;">
+            <div>
+              <span style="font-weight:700;color:#5867e8;">00398704</span>
+              <span style="margin-left:8px;color:#666;">Unauthorized Activity</span>
+            </div>
+            <span style="padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;background:#fce4e8;color:#ba0517;">Open</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /panel-body -->
+
+  <!-- Footer -->
+  <div class="panel-footer">
+    <div class="dots">
+      <div class="dot done" id="dot-0"></div>
+      <div class="dot active" id="dot-1"></div>
+      <div class="dot" id="dot-2"></div>
+      <div class="dot" id="dot-3"></div>
+    </div>
+    <div style="font-size:11px;color:#aaa;flex:1;text-align:center;" id="footer-step-label">Step 1 of 3 — Account Selection</div>
+    <div class="footer-btns">
+      <button class="btn btn-ghost" onclick="cancel()">Cancel</button>
+      <button class="btn btn-primary" id="next-btn" onclick="nextStep()" disabled>Next →</button>
+    </div>
+  </div>
+
+</div><!-- /panel -->
+
+<!-- ── Annotations ── -->
+<div class="annotation" id="annotation">
+  <b>State: Phone Match (3 results)</b> — Accounts matched from <code>Account.Phone_Search__c = VoiceCall.FromPhoneNumber</code>. Today this is a flow <code>Get Records</code> element + a complex conditional screen. In the redesign this is a single Apex call in an LWC.<br>
+  <b>Key change:</b> Phone number query, result display, account selection, and identity confirmation all live inside one component. The flow never sees intermediate state — it only receives <code>accountId</code> + <code>contactId</code> when the agent confirms.
+</div>
+
+<script>
+const ACCOUNTS = {
+  1: { name: 'Sarah Johnson', ari: 'ARI-88214-US', status: 'Active', city: 'San Francisco, CA', email: 's****n@gmail.com', openCases: 2 },
+  2: { name: 'S. Johnson',    ari: 'ARI-55091-US', status: 'Frozen', city: 'Oakland, CA',       email: 's.j.****7@yahoo.com', openCases: 0 },
+  3: { name: 'Sarah M. Johnson-Park', ari: 'ARI-30045-US', status: 'Active', city: 'Daly City, CA', email: 'sarah.m****@outlook.com', openCases: 1 },
+};
+
+const ANNOTATIONS = {
+  'phone-match':    '<b>State: Phone Match (3 results)</b> — Accounts matched from <code>Account.Phone_Search__c = VoiceCall.FromPhoneNumber</code>. Today this is a flow <code>Get Records</code> element + a complex conditional screen mixing 5 UI controls. In the redesign, all matching logic lives in an LWC. <b>Select any account to continue →</b>',
+  'no-match':       '<b>State: No Match</b> — Zero accounts found for this phone number. Today: the same <code>Select_Person_Account</code> screen shows a different text block controlled by <code>accountCount == 0</code> visibility. Here it\'s a clean empty state with an inline search form. <b>Try searching to see results →</b>',
+  'manual-search':  '<b>State: Manual Search</b> — Agent switched from phone match. Today this doesn\'t exist as a distinct state — agents manually override the datatable or use the Lookup field. In the redesign, search is an explicit, clean path. <b>Type anything and click Search to see mock results →</b>',
+  'non-affirm':     '<b>State: Non-Affirm Customer</b> — Today this is controlled by a radio button on the same <code>Select_Person_Account</code> screen, mixing fields with visibility rules. Here it\'s an isolated, clear form. The reason field and warning ensure intentional use.',
+  'confirmed':      '<b>State: Account Confirmed</b> — After selection. Today there is no confirmation step — the account is immediately written to VoiceCall (<code>Update_Voice_Call_Variable</code> DML) and the flow advances. <b>Key improvement:</b> Agent sees a summary before committing. VoiceCall DML only happens when they click "Next". The open cases shown here will carry forward into the guided disputes component.',
+};
+
+const TITLES = {
+  'phone-match':   { title: 'Verify Customer Identity', subtitle: '3 accounts matched the caller\'s phone number. Select the correct account to proceed.', tag: 'Phone Match · 3 Results' },
+  'no-match':      { title: 'No Accounts Found',        subtitle: 'No accounts matched +1 (415) 555-0183. Search by name, email, or ARI to locate the customer.', tag: 'No Match' },
+  'manual-search': { title: 'Search for Customer',      subtitle: 'Search by name and email or ARI. Partial matches are supported.', tag: 'Manual Search' },
+  'non-affirm':    { title: 'Non-Affirm Customer',      subtitle: 'Proceed with a non-Affirm placeholder account. Collect customer details for the case record.', tag: 'Non-Affirm Path' },
+  'confirmed':     { title: 'Account Confirmed',        subtitle: 'Proceed to the guided dispute workflow. The VoiceCall will be linked when the classification is applied.', tag: 'Ready to Proceed' },
+};
+
+let currentState = 'phone-match';
+let selectedPhoneCard = null;
+let selectedMsCard_ = null;
+
+function show(state) {
+  // Hide all views
+  ['phone-match','no-match','manual-search','non-affirm','confirmed'].forEach(s => {
+    document.getElementById('view-' + s).style.display = 'none';
+  });
+
+  // Show target
+  document.getElementById('view-' + state).style.display = 'block';
+  currentState = state;
+
+  // Update header
+  const meta = TITLES[state];
+  document.getElementById('panel-title').textContent    = meta.title;
+  document.getElementById('panel-subtitle').textContent = meta.subtitle;
+  document.getElementById('state-label').textContent    = meta.tag;
+
+  // Update annotation
+  document.getElementById('annotation').innerHTML = ANNOTATIONS[state];
+
+  // Update VC bar label
+  document.getElementById('vc-label').textContent = state === 'confirmed' ? 'Sarah Johnson' : 'Incoming Call';
+
+  // Update footer
+  const nextBtn = document.getElementById('next-btn');
+  const footerLabel = document.getElementById('footer-step-label');
+  if (state === 'confirmed') {
+    nextBtn.disabled = false;
+    nextBtn.textContent = 'Start Classification →';
+    footerLabel.textContent = 'Step 2 of 3 — Account Confirmed';
+    setDots([true, true, false, false]);
+  } else if (state === 'non-affirm') {
+    nextBtn.disabled = false;
+    nextBtn.textContent = 'Continue as Non-Affirm →';
+    footerLabel.textContent = 'Step 1 of 3 — Account Selection';
+    setDots([true, true, false, false]);
+  } else {
+    nextBtn.disabled = true;
+    nextBtn.textContent = 'Next →';
+    footerLabel.textContent = 'Step 1 of 3 — Account Selection';
+    setDots([true, true, false, false]);
+  }
+
+  // Scroll to top
+  document.getElementById('panel-body').scrollTop = 0;
+}
+
+function setDots(states) {
+  const dots = [0,1,2,3];
+  dots.forEach((i) => {
+    const dot = document.getElementById('dot-' + i);
+    dot.className = 'dot';
+    if (states[i] === true && i < states.indexOf(false)) dot.classList.add('done');
+  });
+  document.getElementById('dot-1').classList.add('active');
+}
+
+function selectCard(n) {
+  // Clear all
+  [1,2,3].forEach(i => {
+    document.getElementById('card-' + i).classList.remove('selected');
+  });
+  document.getElementById('card-' + n).classList.add('selected');
+  selectedPhoneCard = n;
+
+  // Update confirmed state
+  const acct = ACCOUNTS[n];
+  document.getElementById('confirmed-name').textContent = acct.name;
+
+  // Enable next after slight delay for feel
+  setTimeout(() => {
+    show('confirmed');
+  }, 300);
+}
+
+function selectMsCard(n) {
+  [1,2].forEach(i => {
+    document.getElementById('ms-card-' + i).classList.remove('selected');
+  });
+  document.getElementById('ms-card-' + n).classList.add('selected');
+
+  const names = { 1: 'Sarah Johnson', 2: 'Tom Johnson' };
+  document.getElementById('confirmed-name').textContent = names[n];
+
+  setTimeout(() => {
+    show('confirmed');
+  }, 300);
+}
+
+let searchTimer = null;
+function doSearch(from) {
+  const first = document.getElementById(from === 'manual-search' ? 'ms-first' : 'nm-first')?.value || '';
+  const last  = document.getElementById(from === 'manual-search' ? 'ms-last'  : 'nm-last')?.value  || '';
+  const email = document.getElementById(from === 'manual-search' ? 'ms-email' : 'nm-email')?.value || '';
+  const query = (first + ' ' + last).trim() || email || 'Customer';
+
+  if (from === 'no-match') {
+    // Switch to manual-search state and show results
+    show('manual-search');
+    document.getElementById('ms-first').value = first;
+    document.getElementById('ms-last').value  = last;
+    document.getElementById('ms-email').value = email;
+  }
+
+  // Show spinner briefly then reveal results
+  document.getElementById('ms-results').style.display = 'none';
+  document.getElementById('ms-query').textContent = query || 'Johnson';
+
+  // Simulate Apex callout latency
+  const resultsEl = document.getElementById('ms-results');
+  setTimeout(() => {
+    resultsEl.style.display = 'block';
+    document.getElementById('ms-count').textContent = '2';
+    document.getElementById('ms-query').textContent = query || 'Johnson';
+  }, 700);
+}
+
+function clearSearch() {
+  document.getElementById('ms-results').style.display = 'none';
+  document.getElementById('ms-first').value = '';
+  document.getElementById('ms-last').value  = '';
+  document.getElementById('ms-email').value = '';
+  [1,2].forEach(i => document.getElementById('ms-card-' + i).classList.remove('selected'));
+}
+
+function nextStep() {
+  if (currentState === 'confirmed') {
+    // Simulate advancing to guided disputes
+    alert('✅ Account confirmed.\n\nIn production, the flow now advances to the Guided Dispute Classification screen with:\n• accountId: 001xx0000XXXXXX\n• contactId: 003xx0000YYYYYY\n• voiceCallId: 0LQXXXXXXX\n• countryCode: US\n\nThe VoiceCall.Account__c DML fires at this point — not before.');
+  } else if (currentState === 'non-affirm') {
+    const reason = document.getElementById('na-reason').value;
+    const first  = document.getElementById('na-first').value;
+    const last   = document.getElementById('na-last').value;
+    if (!reason || !first || !last) {
+      alert('Please fill in First Name, Last Name, and Reason before continuing.');
+      return;
+    }
+    alert('✅ Non-Affirm customer confirmed.\n\nAccountId will be set to the Non-Affirm placeholder from CaseIDs__c.Non_Affirm_Account__c.\nCustomer name "' + first + ' ' + last + '" and phone will be stored on the Case.');
+  }
+}
+
+function cancel() {
+  if (confirm('Cancel this workflow? No changes will be saved.')) {
+    alert('Cancelled. Returning to VoiceCall record.');
+  }
+}
+
+// Init
+show('phone-match');
+</script>
+
+</body>
+</html>
