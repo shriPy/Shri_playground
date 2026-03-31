@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VoiceCall: +1 (415) 555-0183 — Salesforce</title>
+<style>
+/* ── Reset ── */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, 'Salesforce Sans', Arial, sans-serif; background: #f3f2f2; height: 100vh; overflow: hidden; display: flex; flex-direction: column; color: #1a1a2e; }
+
+/* ════════════════════════════════════════════════
+   SALESFORCE GLOBAL NAV
+════════════════════════════════════════════════ */
+.sf-nav {
+  height: 52px; background: #032D60; display: flex; align-items: center;
+  padding: 0 12px; gap: 4px; flex-shrink: 0; z-index: 100;
+  box-shadow: 0 2px 6px rgba(0,0,0,.3);
+}
+.sf-nav-logo { color: #fff; font-size: 22px; margin-right: 6px; }
+.sf-nav-divider { width: 1px; height: 24px; background: rgba(255,255,255,.2); margin: 0 6px; }
+.sf-nav-item {
+  color: rgba(255,255,255,.85); font-size: 13px; font-weight: 500;
+  padding: 6px 10px; border-radius: 4px; cursor: pointer; white-space: nowrap;
+  transition: background .15s;
+}
+.sf-nav-item:hover { background: rgba(255,255,255,.1); }
+.sf-nav-item.active { color: #fff; font-weight: 700; }
+.sf-nav-right { margin-left: auto; display: flex; align-items: center; gap: 4px; }
+.sf-nav-icon-btn {
+  width: 32px; height: 32px; border-radius: 50%; border: none; cursor: pointer;
+  background: rgba(255,255,255,.1); color: rgba(255,255,255,.85); font-size: 15px;
+  display: flex; align-items: center; justify-content: center; transition: background .15s;
+}
+.sf-nav-icon-btn:hover { background: rgba(255,255,255,.2); }
+.sf-nav-avatar {
+  width: 30px; height: 30px; border-radius: 50%; background: #0070d2;
+  color: #fff; font-size: 12px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+  border: 2px solid rgba(255,255,255,.3);
+}
+.sf-nav-search {
+  display: flex; align-items: center; background: rgba(255,255,255,.12);
+  border: 1px solid rgba(255,255,255,.2); border-radius: 4px;
+  padding: 4px 10px; gap: 6px; cursor: pointer;
+}
+.sf-nav-search span { font-size: 12px; color: rgba(255,255,255,.6); }
+.omni-dot {
+  width: 10px; height: 10px; border-radius: 50%; background: #4bca81;
+  border: 2px solid #032D60;
+}
+
+/* ════════════════════════════════════════════════
+   CONSOLE TAB BAR
+════════════════════════════════════════════════ */
+.console-tabs {
+  height: 34px; background: #f3f2f2; border-bottom: 1px solid #dddbda;
+  display: flex; align-items: flex-end; padding: 0 8px; flex-shrink: 0; gap: 2px;
+}
+.console-tab {
+  height: 30px; padding: 0 14px; border-radius: 6px 6px 0 0;
+  display: flex; align-items: center; gap: 8px; cursor: pointer;
+  font-size: 12px; font-weight: 500; color: #54698d; background: #e8e6e6;
+  border: 1px solid #dddbda; border-bottom: none; white-space: nowrap;
+  transition: all .12s;
+}
+.console-tab:hover { background: #f0efef; }
+.console-tab.active {
+  background: #fff; color: #0070d2; font-weight: 700;
+  border-color: #dddbda; height: 32px;
+}
+.console-tab-close {
+  font-size: 14px; color: #a8a8a8; line-height: 1;
+  border-radius: 3px; padding: 0 2px; transition: all .1s;
+}
+.console-tab-close:hover { background: #ddd; color: #333; }
+.console-tab-icon { font-size: 13px; }
+
+/* ════════════════════════════════════════════════
+   RECORD PAGE CONTAINER
+════════════════════════════════════════════════ */
+.record-page { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+
+/* ── Highlights Panel ── */
+.highlights-panel {
+  background: #fff; border-bottom: 1px solid #dddbda; padding: 10px 20px;
+  flex-shrink: 0; display: flex; align-items: center; gap: 16px;
+}
+.hp-icon-wrap {
+  width: 44px; height: 44px; border-radius: 8px; background: #e8f0fe;
+  display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;
+}
+.hp-title-block { flex: 1; min-width: 0; }
+.hp-object-type { font-size: 10px; color: #54698d; text-transform: uppercase; letter-spacing: .5px; font-weight: 600; margin-bottom: 2px; }
+.hp-record-name { font-size: 17px; font-weight: 800; color: #1a1a2e; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hp-fields { display: flex; gap: 20px; align-items: center; flex-wrap: nowrap; }
+.hp-field { display: flex; flex-direction: column; gap: 1px; }
+.hp-field-label { font-size: 10px; color: #54698d; font-weight: 600; text-transform: uppercase; letter-spacing: .4px; }
+.hp-field-value { font-size: 13px; color: #1a1a2e; font-weight: 500; white-space: nowrap; }
+.hp-field-value.live { color: #2e7d32; font-weight: 700; display: flex; align-items: center; gap: 4px; }
+.hp-field-value.live::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: #2e7d32; display: inline-block; animation: pulse 1.5s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+.hp-field-value.warn { color: #c23934; font-weight: 600; }
+.hp-actions { display: flex; gap: 6px; margin-left: 12px; flex-shrink: 0; }
+.hp-action-btn {
+  padding: 5px 14px; border-radius: 4px; font-size: 12px; font-weight: 600;
+  cursor: not-allowed; border: none; pointer-events: none;
+}
+.hp-action-btn.primary { background: #0070d2; color: #fff; opacity: .5; }
+.hp-action-btn.secondary { background: #fff; color: #0070d2; border: 1px solid #0070d2; opacity: .5; }
+.hp-divider { width: 1px; height: 36px; background: #e8e8e8; margin: 0 4px; }
+
+/* ── Page Body (sidebar + main) ── */
+.page-body { flex: 1; display: flex; overflow: hidden; }
+
+/* ════════════════════════════════════════════════
+   SIDEBAR
+════════════════════════════════════════════════ */
+.sidebar {
+  width: 420px; flex-shrink: 0; border-right: 1px solid #dddbda;
+  overflow-y: auto; overflow-x: hidden; background: #f9f9f9;
+  display: flex; flex-direction: column; gap: 0;
+}
+
+/* Sidebar section wrapper */
+.sidebar-section { border-bottom: 1px solid #e0e0e0; }
+.sidebar-section-header {
+  background: #f3f2f2; padding: 5px 12px;
+  display: flex; align-items: center; justify-content: space-between;
+  cursor: default;
+}
+.sidebar-section-title { font-size: 11px; font-weight: 700; color: #54698d; text-transform: uppercase; letter-spacing: .5px; }
+.sidebar-section-badge {
+  font-size: 10px; padding: 1px 6px; border-radius: 8px;
+  background: #e8eafe; color: #5867e8; font-weight: 700;
+}
+
+/* ── Phone Controls ── */
+.phone-controls {
+  padding: 10px 14px; background: #fff; display: flex; flex-direction: column; gap: 8px;
+}
+.phone-timer { font-size: 20px; font-weight: 800; color: #1a1a2e; font-family: monospace; text-align: center; letter-spacing: 1px; }
+.phone-sub { font-size: 11px; color: #2e7d32; font-weight: 700; text-align: center; display: flex; align-items: center; justify-content: center; gap: 5px; }
+.phone-sub::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: #2e7d32; animation: pulse 1.5s ease-in-out infinite; }
+.phone-btns { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+.phone-btn {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  cursor: not-allowed; opacity: .55;
+}
+.phone-btn-circle {
+  width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid #ddd;
+  background: #fff; display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+}
+.phone-btn-label { font-size: 10px; color: #666; font-weight: 500; }
+.phone-btn.end .phone-btn-circle { background: #fce4e8; border-color: #e84058; }
+.phone-btn.end .phone-btn-label { color: #e84058; }
+
+/* ── Conversation ── */
+.conversation-body { padding: 10px 14px; background: #fff; display: flex; flex-direction: column; gap: 6px; }
+.conv-msg { display: flex; gap: 8px; align-items: flex-start; }
+.conv-msg-system { font-size: 11px; color: #aaa; text-align: center; padding: 2px 0; font-style: italic; }
+.conv-avatar {
+  width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: #fff; margin-top: 1px;
+}
+.conv-bubble { background: #f3f2f2; border-radius: 0 8px 8px 8px; padding: 6px 10px; font-size: 11px; color: #333; line-height: 1.4; max-width: 280px; }
+.conv-bubble.agent-bubble { background: #e8f0fe; border-radius: 8px 0 8px 8px; }
+.conv-name { font-size: 10px; color: #888; margin-bottom: 2px; }
+.conv-typing { display: flex; gap: 4px; align-items: center; padding: 4px 0; }
+.conv-typing span { font-size: 11px; color: #aaa; font-style: italic; }
+
+/* ════════════════════════════════════════════════
+   GUIDED WORKFLOW PANEL (inside sidebar)
+════════════════════════════════════════════════ */
+.disputes-panel {
+  background: #f7f7fb; display: flex; flex-direction: column;
+}
+
+/* Jump links (prototype nav only) */
+.jump-links-bar {
+  display: flex; gap: 5px; padding: 6px 10px; background: #eef0f8;
+  border-bottom: 1px solid #e0e0e8; flex-wrap: wrap;
+}
+.jump-link {
+  font-size: 10px; padding: 2px 8px; border-radius: 8px;
+  background: #fff; border: 1px solid #ddd; color: #5867e8; cursor: pointer;
+  transition: all .15s; font-family: inherit;
+}
+.jump-link:hover { background: #5867e8; color: #fff; border-color: #5867e8; }
+
+/* Panel header (gradient) */
+.panel-header {
+  background: linear-gradient(135deg, #5867e8 0%, #7b5ce5 100%);
+  padding: 12px 16px 10px; color: #fff;
+}
+.panel-header h2 { font-size: 13px; font-weight: 700; margin-bottom: 2px; line-height: 1.3; }
+.panel-header p  { font-size: 11px; opacity: .85; line-height: 1.4; }
+
+/* Transfer banner */
+.transfer-banner {
+  background: #f5f3ff; border-left: 3px solid #7b5ce5;
+  margin: 8px 12px 0; padding: 6px 10px; border-radius: 0 5px 5px 0;
+  font-size: 11px; color: #333; display: none;
+}
+.transfer-banner.visible { display: block; }
+.transfer-banner b { color: #5867e8; }
+
+/* Panel body */
+.panel-body { padding: 12px 14px; overflow-y: visible; }
+
+/* Category grid */
+.cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+.cat-card {
+  border: 2px solid #e8e8f0; border-radius: 9px; padding: 10px 10px;
+  cursor: pointer; transition: all .18s; display: flex; align-items: center; gap: 9px; background: #fff;
+}
+.cat-card:hover { border-color: #5867e8; background: #f7f6ff; box-shadow: 0 2px 8px rgba(88,103,232,.1); }
+.cat-card.selected { border-color: #5867e8; background: #f0eefb; }
+.cat-icon { width: 30px; height: 30px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+.cat-label { font-size: 11px; font-weight: 700; color: #1a1a2e; line-height: 1.3; }
+.cat-desc  { font-size: 10px; color: #888; margin-top: 1px; }
+
+/* Question cards */
+.q-list { display: flex; flex-direction: column; gap: 8px; }
+.q-card {
+  border: 1.5px solid #e8e8f0; border-radius: 9px; padding: 10px 10px;
+  background: #fff; display: flex; align-items: flex-start; gap: 9px;
+}
+.q-card.answered { border-color: #c8d4f8; background: #fafbff; }
+.q-icon { width: 28px; height: 28px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; margin-top: 1px; }
+.q-body { flex: 1; }
+.q-title { font-size: 12px; font-weight: 700; color: #1a1a2e; margin-bottom: 2px; line-height: 1.35; }
+.q-desc  { font-size: 11px; color: #666; line-height: 1.4; margin-bottom: 8px; }
+.q-controls { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.q-answered-badge { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px; }
+.q-answered-badge.yes { background: #e8f5e9; color: #27ae60; }
+.q-answered-badge.no  { background: #fce4e8; color: #ba0517; }
+.q-answered-badge.choice { background: #e8eafe; color: #5867e8; }
+
+/* Toggle + chip buttons */
+.toggle-group { display: flex; border-radius: 5px; overflow: hidden; border: 1.5px solid #d0d0e0; }
+.toggle-btn { padding: 4px 12px; font-size: 11px; font-weight: 600; border: none; cursor: pointer; background: #fff; color: #555; transition: all .15s; font-family: inherit; }
+.toggle-btn:first-child { border-right: 1px solid #d0d0e0; }
+.toggle-btn:hover:not(:disabled) { background: #f0eefb; }
+.toggle-btn.sel-yes { background: #5867e8; color: #fff; }
+.toggle-btn.sel-no  { background: #e84058; color: #fff; }
+.chip-group { display: flex; flex-wrap: wrap; gap: 5px; }
+.chip { padding: 4px 10px; border-radius: 14px; font-size: 11px; font-weight: 500; border: 1.5px solid #d0d0e0; background: #fff; color: #444; cursor: pointer; transition: all .15s; font-family: inherit; }
+.chip:hover { border-color: #5867e8; color: #5867e8; background: #f0eefb; }
+.chip.selected { border-color: #5867e8; background: #5867e8; color: #fff; }
+.kb-btn { padding: 3px 10px; border-radius: 5px; font-size: 10px; font-weight: 700; border: 1.5px solid #5867e8; background: #fff; color: #5867e8; cursor: pointer; transition: all .15s; font-family: inherit; }
+.kb-btn:hover { background: #5867e8; color: #fff; }
+
+/* Result card */
+.result-card { border-radius: 9px; padding: 11px 13px; margin-top: 8px; display: none; }
+.result-card.type-classification { border: 2px solid #e8b84b; background: linear-gradient(135deg,#fffbf0,#fff8e5); }
+.result-card.type-info           { border: 2px solid #27ae60; background: linear-gradient(135deg,#f0faf3,#e8f5e9); }
+.result-card.visible { display: block; }
+.result-label { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 3px; }
+.type-classification .result-label { color: #c77800; }
+.type-info           .result-label { color: #27ae60; }
+.result-name  { font-size: 13px; font-weight: 800; color: #1a1a2e; margin-bottom: 7px; }
+.result-actions { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.result-actions li { display: flex; align-items: flex-start; gap: 6px; font-size: 11px; color: #333; line-height: 1.4; }
+.result-actions li::before { content: '✓'; font-weight: 900; flex-shrink: 0; margin-top: 1px; }
+.type-classification .result-actions li::before { color: #e8a000; }
+.type-info           .result-actions li::before { color: #27ae60; }
+
+/* Confirm page */
+.confirm-wrap { display: flex; flex-direction: column; gap: 10px; }
+.summary-card { border: 1.5px solid #e8e8f0; border-radius: 9px; padding: 12px; background: #fff; }
+.summary-card h3 { font-size: 10px; font-weight: 800; color: #5867e8; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+.summary-row { display: flex; gap: 6px; font-size: 11px; margin-bottom: 5px; }
+.s-lbl { color: #888; font-weight: 500; width: 120px; flex-shrink: 0; }
+.s-val { color: #1a1a2e; font-weight: 600; }
+.open-cases-card { border: 1.5px solid #f5c842; border-radius: 9px; padding: 10px; background: #fffdf0; }
+.open-cases-card h4 { font-size: 11px; font-weight: 700; color: #c77800; margin-bottom: 8px; }
+.case-row { display: flex; align-items: center; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #f0e8c8; font-size: 11px; gap: 6px; }
+.case-row:last-child { border-bottom: none; padding-bottom: 0; }
+.case-num { font-weight: 700; color: #5867e8; flex-shrink: 0; }
+.case-status-badge { padding: 1px 6px; border-radius: 8px; font-size: 9px; font-weight: 700; background: #fce4e8; color: #ba0517; flex-shrink: 0; }
+.use-btn { padding: 3px 8px; border-radius: 5px; font-size: 10px; font-weight: 700; border: 1.5px solid #5867e8; background: #fff; color: #5867e8; cursor: pointer; flex-shrink: 0; font-family: inherit; }
+.use-btn:hover { background: #5867e8; color: #fff; }
+
+/* Panel footer */
+.panel-footer {
+  padding: 9px 14px; border-top: 1px solid #eee;
+  display: flex; align-items: center; background: #fafafa;
+}
+.dots { display: flex; gap: 5px; align-items: center; flex: 1; }
+.dot { width: 7px; height: 7px; border-radius: 50%; background: #ddd; transition: all .2s; }
+.dot.active { background: #5867e8; width: 18px; border-radius: 3px; }
+.dot.done   { background: #7b5ce5; opacity: .45; }
+.footer-btns { display: flex; gap: 6px; }
+.btn { padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; transition: all .15s; font-family: inherit; }
+.btn-outline { background: none; border: 1.5px solid #d0d0e0; color: #666; }
+.btn-outline:hover { border-color: #5867e8; color: #5867e8; background: #f0eefb; }
+.btn-primary { background: linear-gradient(135deg,#5867e8,#7b5ce5); color: #fff; box-shadow: 0 2px 8px rgba(88,103,232,.28); }
+.btn-primary:hover:not([disabled]) { box-shadow: 0 4px 14px rgba(88,103,232,.42); transform: translateY(-1px); }
+.btn-primary[disabled] { opacity: .4; cursor: default; transform: none; box-shadow: none; }
+
+/* ════════════════════════════════════════════════
+   MAIN CONTENT
+════════════════════════════════════════════════ */
+.main-content {
+  flex: 1; overflow-y: auto; background: #fff;
+  display: flex; flex-direction: column;
+}
+
+/* Warning banner */
+.missing-case-banner {
+  background: #fff; border-bottom: 3px solid #c23934;
+  padding: 10px 20px; display: flex; align-items: center; gap: 10px;
+  flex-shrink: 0;
+}
+.missing-case-banner-icon { font-size: 18px; flex-shrink: 0; }
+.missing-case-banner p { font-size: 13px; font-weight: 700; color: #c23934; line-height: 1.4; }
+
+/* Tabs */
+.record-tabs { border-bottom: 1px solid #dddbda; background: #fff; display: flex; flex-shrink: 0; }
+.record-tab {
+  padding: 10px 18px; font-size: 13px; font-weight: 500; color: #54698d;
+  cursor: not-allowed; border-bottom: 2px solid transparent; transition: all .15s;
+  pointer-events: none;
+}
+.record-tab.active { color: #0070d2; font-weight: 700; border-bottom-color: #0070d2; }
+
+/* Record detail fields */
+.record-detail { padding: 20px; }
+.field-section-title {
+  font-size: 11px; font-weight: 700; color: #54698d; text-transform: uppercase;
+  letter-spacing: .5px; margin-bottom: 10px; padding-bottom: 6px;
+  border-bottom: 1px solid #f0f0f0;
+}
+.field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+.field-item { display: flex; flex-direction: column; gap: 3px; }
+.field-item-label { font-size: 11px; color: #54698d; font-weight: 600; }
+.field-item-value { font-size: 13px; color: #1a1a2e; font-weight: 500; }
+.field-item-value.empty { color: #aaa; font-style: italic; }
+.field-item-value.link { color: #0070d2; cursor: not-allowed; }
+.field-item-value.badge {
+  display: inline-flex; padding: 2px 8px; border-radius: 10px;
+  font-size: 11px; font-weight: 700; align-self: flex-start;
+}
+.badge-active { background: #e8f5e9; color: #2e7d32; }
+.badge-intent { background: #e8f0fe; color: #0052cc; }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════
+     SALESFORCE GLOBAL NAV
+════════════════════════════════════════════════ -->
+<nav class="sf-nav">
+  <span class="sf-nav-logo">☁</span>
+  <div class="sf-nav-divider"></div>
+  <span class="sf-nav-item">Service</span>
+  <span class="sf-nav-divider"></span>
+  <span class="sf-nav-item">Home</span>
+  <span class="sf-nav-item">VoiceCalls</span>
+  <span class="sf-nav-item active">Cases</span>
+  <span class="sf-nav-item">Accounts</span>
+  <span class="sf-nav-item">Knowledge</span>
+  <div class="sf-nav-right">
+    <div class="sf-nav-search">
+      <span>🔍</span>
+      <span>Search Salesforce</span>
+    </div>
+    <div class="sf-nav-divider"></div>
+    <button class="sf-nav-icon-btn" title="Omnichannel">
+      <span class="omni-dot" style="width:12px;height:12px;background:#4bca81;border-radius:50%;display:inline-block;border:2px solid #032d60;"></span>
+    </button>
+    <button class="sf-nav-icon-btn" title="Notifications">🔔</button>
+    <button class="sf-nav-icon-btn" title="Help">❓</button>
+    <div class="sf-nav-avatar" title="Shri V.">SV</div>
+  </div>
+</nav>
+
+<!-- ════════════════════════════════════════════════
+     CONSOLE TAB BAR
+════════════════════════════════════════════════ -->
+<div class="console-tabs">
+  <div class="console-tab">
+    <span class="console-tab-icon">🏠</span>
+    <span>Home</span>
+  </div>
+  <div class="console-tab active">
+    <span class="console-tab-icon">📞</span>
+    <span>VoiceCall: +1 (415) 555-0183</span>
+    <span class="console-tab-close">✕</span>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════
+     RECORD PAGE
+════════════════════════════════════════════════ -->
+<div class="record-page">
+
+  <!-- ── Highlights Panel ── -->
+  <div class="highlights-panel">
+    <div class="hp-icon-wrap">📞</div>
+    <div class="hp-title-block">
+      <div class="hp-object-type">Voice Call</div>
+      <div class="hp-record-name">+1 (415) 555-0183</div>
+    </div>
+    <div class="hp-divider"></div>
+    <div class="hp-fields">
+      <div class="hp-field">
+        <div class="hp-field-label">Status</div>
+        <div class="hp-field-value live">Active</div>
+      </div>
+      <div class="hp-field">
+        <div class="hp-field-label">Duration</div>
+        <div class="hp-field-value" id="hp-duration">4:32</div>
+      </div>
+      <div class="hp-field">
+        <div class="hp-field-label">Customer Intent</div>
+        <div class="hp-field-value"><span id="vc-intent" style="background:#e8f0fe;color:#0052cc;padding:1px 7px;border-radius:8px;font-size:11px;font-weight:700;">OrderIssues/Disputes</span></div>
+      </div>
+      <div class="hp-field">
+        <div class="hp-field-label">Queue</div>
+        <div class="hp-field-value">CXP_Disputes_US</div>
+      </div>
+      <div class="hp-field">
+        <div class="hp-field-label">Country</div>
+        <div class="hp-field-value">🇺🇸 US</div>
+      </div>
+      <div class="hp-field">
+        <div class="hp-field-label">Case</div>
+        <div class="hp-field-value warn">— Not linked</div>
+      </div>
+      <div class="hp-field">
+        <div class="hp-field-label">Account</div>
+        <div class="hp-field-value empty" id="hp-account">Not verified</div>
+      </div>
+    </div>
+    <div class="hp-actions">
+      <button class="hp-action-btn primary">Edit</button>
+      <button class="hp-action-btn secondary">▾</button>
+    </div>
+  </div>
+
+  <!-- ── Page Body ── -->
+  <div class="page-body">
+
+    <!-- ════════════════════════════════════════
+         LEFT SIDEBAR
+    ════════════════════════════════════════ -->
+    <aside class="sidebar">
+
+      <!-- ── SECTION: Guided Experience (flowruntime:interview → guidedAgentDisputes LWC) ── -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-header">
+          <span class="sidebar-section-title">⚡ Guided Experience — Disputes</span>
+          <span class="sidebar-section-badge">Active</span>
+        </div>
+
+        <div class="disputes-panel">
+
+          <!-- Jump links (prototype only) -->
+          <div class="jump-links-bar">
+            <span style="font-size:10px;color:#aaa;align-self:center;margin-right:2px;">Jump to:</span>
+            <span class="jump-link" onclick="jumpTo(1)">1 · Category</span>
+            <span class="jump-link" onclick="jumpTo(2)">2 · Questions</span>
+            <span class="jump-link" onclick="jumpTo(3)">3 · Confirm</span>
+          </div>
+
+          <!-- Panel header -->
+          <div class="panel-header">
+            <h2 id="panel-title">Guided Dispute Classification</h2>
+            <p id="panel-subtitle">Select the type of dispute the customer is calling about.</p>
+          </div>
+
+          <!-- Transfer banner -->
+          <div class="transfer-banner" id="transfer-banner">
+            <b>Transfer Info:</b>&nbsp; Unauthorized Activity &nbsp;·&nbsp;
+            Verified &nbsp;·&nbsp; Customer did not open account
+          </div>
+
+          <!-- Body -->
+          <div class="panel-body" id="panel-body"></div>
+
+          <!-- Footer -->
+          <div class="panel-footer">
+            <div class="dots" id="dots"></div>
+            <div class="footer-btns" id="footer-btns"></div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── SECTION: Phone Controls (opencti:recordPhoneCallControls + opencti:acwTimer) ── -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-header">
+          <span class="sidebar-section-title">📞 Call Controls</span>
+        </div>
+        <div class="phone-controls">
+          <div class="phone-timer" id="phone-timer">04:32</div>
+          <div class="phone-sub">Live Call · Inbound</div>
+          <div class="phone-btns">
+            <div class="phone-btn"><div class="phone-btn-circle">🔇</div><div class="phone-btn-label">Mute</div></div>
+            <div class="phone-btn"><div class="phone-btn-circle">⏸</div><div class="phone-btn-label">Hold</div></div>
+            <div class="phone-btn"><div class="phone-btn-circle">↗</div><div class="phone-btn-label">Transfer</div></div>
+            <div class="phone-btn"><div class="phone-btn-circle">👥</div><div class="phone-btn-label">Conf.</div></div>
+            <div class="phone-btn end"><div class="phone-btn-circle">📵</div><div class="phone-btn-label">End</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SECTION: Conversation (scrt:conversationBody) ── -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-header">
+          <span class="sidebar-section-title">💬 Conversation</span>
+        </div>
+        <div class="conversation-body">
+          <div class="conv-msg-system">Call connected · 2:14 PM</div>
+          <div class="conv-msg">
+            <div class="conv-avatar" style="background:#7b5ce5;">IVR</div>
+            <div>
+              <div class="conv-name">IVR System</div>
+              <div class="conv-bubble">Thank you for calling Affirm. This call may be recorded for quality and training purposes.</div>
+            </div>
+          </div>
+          <div class="conv-msg">
+            <div class="conv-avatar" style="background:#7b5ce5;">IVR</div>
+            <div>
+              <div class="conv-name">IVR System</div>
+              <div class="conv-bubble">You selected: Disputes &amp; Order Issues. Connecting you to a specialist now.</div>
+            </div>
+          </div>
+          <div class="conv-msg-system">Agent connected · 2:14 PM</div>
+          <div class="conv-msg" style="flex-direction:row-reverse;">
+            <div class="conv-avatar" style="background:#5867e8;">SV</div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;">
+              <div class="conv-name" style="text-align:right;">Shri V. (You)</div>
+              <div class="conv-bubble agent-bubble">Thank you for calling Affirm, my name is Shri. How can I help you today?</div>
+            </div>
+          </div>
+          <div class="conv-msg">
+            <div class="conv-avatar" style="background:#aaa;">?</div>
+            <div>
+              <div class="conv-name">Caller</div>
+              <div class="conv-bubble">Hi, I have an issue with a charge on my account. I don't recognize a transaction from last week.</div>
+            </div>
+          </div>
+          <div class="conv-typing">
+            <span>Caller is speaking...</span>
+          </div>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- ════════════════════════════════════════
+         MAIN CONTENT
+    ════════════════════════════════════════ -->
+    <main class="main-content">
+
+      <!-- Warning banner (flexipage:richText — visible when Case__r.CaseNumber is blank) -->
+      <div class="missing-case-banner">
+        <span class="missing-case-banner-icon">⚠️</span>
+        <p>Voice Call record is missing a Case — please use the Guided Experience to classify and link a case to this call.</p>
+      </div>
+
+      <!-- Tabs -->
+      <div class="record-tabs">
+        <div class="record-tab active">Details</div>
+        <div class="record-tab">Related</div>
+      </div>
+
+      <!-- Details tab content (force:detailPanel — read-only) -->
+      <div class="record-detail">
+
+        <div class="field-section-title">Call Information</div>
+        <div class="field-grid">
+          <div class="field-item">
+            <div class="field-item-label">Call Type</div>
+            <div class="field-item-value">Inbound</div>
+          </div>
+          <div class="field-item">
+            <div class="field-item-label">Call Status</div>
+            <div class="field-item-value"><span class="badge badge-active">Active</span></div>
+          </div>
+          <div class="field-item">
+            <div class="field-item-label">From Phone</div>
+            <div class="field-item-value" style="font-family:monospace;">+1 (415) 555-0183</div>
+          </div>
+          <div class="field-item">
+            <div class="field-item-label">To Phone</div>
+            <div class="field-item-value" style="font-family:monospace;">+1 (650) 555-8800</div>
+          </div>
+          <div class="field-item">
+            <div class="field-item-label">Customer Intent</div>
+            <div class="field-item-value"><span class="badge badge-intent">OrderIssues/Disputes</span></div>
+          </div>
+          <div class="field-item">
+            <div class="field-item-label">Queue Name</div>
+            <div class="field-item-value">CXP_Disputes_US</div>
+          </div>
+          <div class="field-item">
+            <div class="field-item-label">Country Code</div>
+            <div class="field-item-value">US</div>
+          </div>
+          <div class="field-item">
+            <div class="field-item-label">Language</div>
+            <div class="field-item-value">en_US</div>
+          </div>
+          <div class="field-item">
+            <div class="field-item-label">Call Started</div>
+            <div class="field-item-value">Mar 26, 2026, 2:14 PM</div>
+          </div>
+          <div class="field-item">
+            <div class="field-item-label">Call Duration</div>
+            <div class="field-item-value" id="detail-duration">4:32 (active)</div>
+          </div>
+        </div>
+
+        <div class="field-section-title">Customer &amp; Case</div>
+        <div class="field-grid">
+          <div class="field-item">
+            <div class="field-item-label">Account</div>
+            <div class="field-item-value empty" id="detail-account">— Not yet linked</div>
+          </div>
+          <div class="field-item">
+            <div class="field-item-label">Case</div>
+            <div class="field-item-value empty">— Not yet linked</div>
+          </div>
+          <div class="field-item">
+            <div class="field-item-label">Case Classification</div>
+            <div class="field-item-value empty" id="detail-classification">— Pending guided workflow</div>
+          </div>
+          <div class="field-item">
+            <div class="field-item-label">Call Subtype</div>
+            <div class="field-item-value">General</div>
+          </div>
+        </div>
+
+        <div class="field-section-title">Agent &amp; Routing</div>
+        <div class="field-grid">
+          <div class="field-item">
+            <div class="field-item-label">Assigned Agent</div>
+            <div class="field-item-value link">Shri V.</div>
+          </div>
+          <div class="field-item">
+            <div class="field-item-label">Site</div>
+            <div class="field-item-value">Alorica</div>
+          </div>
+          <div class="field-item">
+            <div class="field-item-label">Vendor Call Key</div>
+            <div class="field-item-value" style="font-family:monospace;font-size:11px;">VC-2026-03-26-8814</div>
+          </div>
+          <div class="field-item">
+            <div class="field-item-label">External Origin</div>
+            <div class="field-item-value">AWS Connect</div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+  </div><!-- /page-body -->
+</div><!-- /record-page -->
+
+<script>
+// ─── CALL TIMER ─────────────────────────────────────────────────────────────
+var callSeconds = 4 * 60 + 32;
+function fmtTime(s) {
+  var m = Math.floor(s/60);
+  var sec = s % 60;
+  return (m < 10 ? '0' : '') + m + ':' + (sec < 10 ? '0' : '') + sec;
+}
+setInterval(function() {
+  callSeconds++;
+  var t = fmtTime(callSeconds);
+  var timerEl = document.getElementById('phone-timer');
+  var hpEl    = document.getElementById('hp-duration');
+  var detEl   = document.getElementById('detail-duration');
+  if (timerEl) timerEl.textContent = t;
+  if (hpEl)    hpEl.textContent    = t.replace(/^0/,'');
+  if (detEl)   detEl.textContent   = t.replace(/^0/,'') + ' (active)';
+}, 1000);
+
+// ─── DATA ───────────────────────────────────────────────────────────────────
+var CATEGORIES = [
+  { id:'fraudulent_activity',       label:'Fraudulent Activity',          icon:'🚨', bg:'#fce4e8', desc:'Unauthorized account, loan, or card activity' },
+  { id:'issue_with_purchase',       label:'Issue with Purchase',           icon:'🛍️', bg:'#e8f0fe', desc:'Merchant dispute, return, or refund' },
+  { id:'credit_report_inaccurate',  label:'Credit Report Inaccurate',      icon:'📋', bg:'#e8f0fe', desc:'Incorrect or missing credit reporting' },
+  { id:'money_account_transaction', label:'Money Account Transaction',     icon:'💰', bg:'#e8f5e9', desc:'Transfer dispute or money account issue' },
+  { id:'billing_statement_dispute', label:'Billing Statement Dispute',     icon:'📄', bg:'#e8f0fe', desc:'Incorrect statement or billing charge' },
+  { id:'update_on_dispute_status',  label:'Update on Dispute Status',      icon:'🔄', bg:'#e8f0fe', desc:'Follow-up on an existing open dispute' },
+  { id:'disagree_with_resolution',  label:'Disagree with Resolution',      icon:'👎', bg:'#fff3e0', desc:'Customer disputes a closed dispute outcome' },
+  { id:'other',                     label:'Other',                         icon:'❓', bg:'#f5f5f5', desc:'Dispute not listed above' },
+];
+function cls(name,caseType,kb,actions){ return {_type:'classification',name:name,caseType:caseType,kb:kb,actions:actions}; }
+function info(name,actions){ return {_type:'info',name:name,actions:actions}; }
+var TREES = {
+  fraudulent_activity:{ subtitle:"Let's confirm the type of Fraudulent Activity claim.", showTransfer:true, start:'fraud_part', q:{
+    fraud_part:{ text:'What part of the Affirm account has fraud present?', desc:'Identify the specific product affected.', icon:'🛡️', bg:'#e8e8fb', type:'chip', choices:[{label:'Affirm Account',value:'affirm_account'},{label:'Installment Loan',value:'installment_loan'},{label:'Affirm Card',value:'affirm_card'},{label:'Money Account',value:'money_account'},{label:'Personal Payment Method',value:'personal_payment'}], branches:{affirm_account:'account_no_permission',installment_loan:'loan_virtual_card',affirm_card:'open_card_dispute_fraud',money_account:'money_created_fraudulently',personal_payment:'caller_affirm_customer'} },
+    account_no_permission:{ text:'Was an Affirm account created without permission with no loans?', desc:'YES if account exists but customer never opened it and has no loan activity.', icon:'⚠️', bg:'#fce4e8', type:'yn', branches:{ yes:cls('Unauthorized Account','Unauthorized Activity','VFO-SBS-Unauthorized-Activity',['Workstream: Unauthorized Activity case','Collect caller information','If multiple accounts: confirm if all are unauthorized','Send follow-up comm → Escalate to Fraud Ops']), no:info('Account Has Loan Activity',['Customer has an existing account with loan activity','Review account and confirm the correct dispute path','Select the appropriate product and restart']) } },
+    loan_virtual_card:{ text:"Is the customer's loan a Virtual Card?", desc:"Check Loans tab — does the loan show as Virtual Card?", icon:'💳', bg:'#e8e8fb', type:'yn', branches:{ yes:cls('Unauthorized Virtual Card Activity','Unauthorized Activity','VFO-SBS-Unauthorized-Activity',['Workstream: Unauthorized Virtual Card Activity case','Collect caller information','Identify affected virtual card transactions','Escalate to Fraud Ops']), no:cls('Unauthorized Loan Claim','Unauthorized Activity','VFO-SBS-Unauthorized-Activity',['Workstream: Unauthorized Loan Claim case','Collect caller information','Confirm merchant name and loan amount','Escalate to Fraud Ops']) } },
+    open_card_dispute_fraud:{ text:'Open an Affirm Card Dispute case?', desc:'Unauthorized Affirm Card activity AND card type shows "Affirm Card"?', icon:'💳', bg:'#e8e8fb', type:'yn', kb:'VFO-SBS-Affirm-Card-Fraud-Dispute', branches:{ yes:cls('Affirm Card Fraud Dispute','Affirm Card Disputes','VFO-SBS-Affirm-Card-Fraud-Dispute',['Workstream: Affirm Card Dispute Intake','Collect date, merchant, and amount','Verify card status in Affirm Card portal','Open dispute intake case']), no:info('No Case Opened',['Issue does not meet Affirm Card Dispute criteria','Review account with customer','Transfer to appropriate team if needed']) } },
+    money_created_fraudulently:{ text:'Was the Money Account itself created fraudulently?', desc:'Unauthorized activity on Money Account OR entire account is unauthorized?', icon:'💰', bg:'#e8f5e9', type:'yn', branches:{ yes:cls('Unauthorized Affirm Money Account Claim','Unauthorized Activity','VFO-SBS-Unauthorized-Activity',['Workstream: Unauthorized Money Account Claim','Collect caller information and account details','Confirm Money Account balance and transactions','Escalate to Fraud Ops immediately']), no:cls('Transfer Dispute','Transfer Dispute','VFO-SBS-Affirm-Money-Transfer-Dispute-New',['Workstream: Affirm Money Transfer Dispute','Collect transfer date and amount','Confirm sending and receiving account details','Initiate transfer dispute process']) } },
+    caller_affirm_customer:{ text:'Is the caller an Affirm customer?', desc:'Is the caller reporting fraud on their own Affirm account?', icon:'👤', bg:'#e8f0fe', type:'yn', branches:{ yes:cls('Payment Dispute','Payment Dispute','VFO-SBS-Affirm-Card-Merchant-Dispute',['Workstream: Payment Dispute case','Verify customer identity','Collect disputed payment details']), no:cls('Non-Affirm Claimant','Non-Affirm Claimant',null,['Caller is not an Affirm customer','Document the claim and reason for call','Route to appropriate team']) } }
+  }},
+  issue_with_purchase:{ subtitle:"Let's confirm the type of Purchase Issue.", start:'affirm_card_purchase', q:{
+    affirm_card_purchase:{ text:'Was the purchase made with the Affirm Card?', desc:'Was the transaction made using an Affirm Card (virtual or physical)?', icon:'💳', bg:'#e8e8fb', type:'yn', branches:{yes:'card_dispute_or_refund',no:'loan_confirmed'} },
+    card_dispute_or_refund:{ text:'Is the customer requesting to dispute their purchase?', desc:'Not received, damaged item, or unauthorized charge on Affirm Card?', icon:'🛍️', bg:'#fce4e8', type:'yn', kb:'VFO-SBS-Affirm-Card-Merchant-Dispute', branches:{ yes:cls('Affirm Card Merchant Dispute','Affirm Card Disputes','VFO-SBS-Affirm-Card-Merchant-Dispute',['Workstream: Affirm Card Dispute Intake','Collect dispute details: date, merchant, amount','Open dispute intake case']), no:'affirm_card_return_refund' } },
+    affirm_card_return_refund:{ text:'Open an Affirm Card Purchase Return / Refund case?', desc:'Customer asking about a return or pending refund on their Affirm Card?', icon:'🔄', bg:'#e8f5e9', type:'yn', kb:'VFO-SBS---Affirm-Card-Purchase-Return-Refund', branches:{ yes:cls('Affirm Card Purchase Return/Refund','Purchase Return/Refund','VFO-SBS---Affirm-Card-Purchase-Return-Refund',['Workstream: Affirm Card Purchase Return/Refund case','Confirm return/refund status with merchant','Advise customer on refund timeline (3–5 business days)']), no:info('No Case Opened',['No dispute or return/refund issue identified','Educate customer and document call']) } },
+    loan_confirmed:{ text:"Is the customer's loan confirmed?", desc:'Verify in Loans tab — is loan in Confirmed status (not Processing)?', icon:'✅', bg:'#e8f5e9', type:'yn', branches:{yes:'open_merchant_dispute',no:'open_unload_void'} },
+    open_merchant_dispute:{ text:'Is the customer requesting to dispute their purchase?', desc:'Not received, damaged item, or incorrect charge?', icon:'🛍️', bg:'#fce4e8', type:'yn', kb:'VFO-SBS-Affirm-Card-Merchant-Dispute', branches:{ yes:cls('Merchant Dispute','Affirm Card Disputes','VFO-SBS-Affirm-Card-Merchant-Dispute',['Workstream: Merchant Dispute case','Collect dispute details: order number, merchant, amount','Initiate dispute process with merchant']), no:'purchase_return_refund_non_card' } },
+    purchase_return_refund_non_card:{ text:'Open a Purchase Return / Refund case?', desc:'Customer asking about a return or pending refund on their installment loan?', icon:'🔄', bg:'#e8f5e9', type:'yn', branches:{ yes:cls('Purchase Return/Refund','Purchase Return/Refund','VFO-SBS-Affirm-Card-Purchase-Return-Refund',['Workstream: Purchase Return/Refund case','Confirm return/refund status with merchant','Loan paused during return process']), no:info('No Case Opened',['No dispute or return/refund issue','Document interaction']) } },
+    open_unload_void:{ text:'Open an Unload / Void Loan case?', desc:'Loan is processing — customer wants to void before it confirms?', icon:'🔄', bg:'#fff3e0', type:'yn', branches:{ yes:cls('Unload / Void Loan','Unload / Void Loan',null,['Workstream: Unload/Void Loan case','Confirm loan status and merchant relationship','Process unload/void request in system']), no:info('No Case Opened',['Loan is processing — advise customer on next steps','Document call and expected timeline']) } }
+  }},
+  credit_report_inaccurate:{ subtitle:"Let's confirm the Credit Reporting Dispute type.", start:'crd_issue_type', q:{
+    crd_issue_type:{ text:'What is the credit reporting issue?', desc:"Select the option that best describes the customer's concern.", icon:'📋', bg:'#e8e8fb', type:'chip', choices:[{label:'Information is inaccurate',value:'inaccurate'},{label:'Information is missing',value:'missing'},{label:'Request for adjustment — no inaccuracy',value:'adjustment'},{label:'Other',value:'other'}], branches:{ inaccurate:'open_crd_inaccurate', missing:'open_crd_missing', adjustment:'open_goodwill', other:info('Transfer Call',['Customer has a credit reporting issue not listed','Transfer to Credit Disputes specialist team','Document call and reason for transfer']) } },
+    open_crd_inaccurate:{ text:'Open a Credit Reporting Dispute case?', desc:"Confirm customer's credit report contains inaccurate information.", icon:'❌', bg:'#fce4e8', type:'yn', kb:'VFO-SBS-Credit-Reporting-Dispute-Direct-Credit-Reporting-Dispute', branches:{ yes:cls('CRD — Inaccurate Information','Credit Reporting Dispute','VFO-SBS-Credit-Reporting-Dispute-Direct-Credit-Reporting-Dispute',['Workstream: Credit Reporting Dispute — Inaccurate Information','Collect the credit bureau name and report date','Confirm which account information is inaccurate','Submit dispute to eOscar within required timeframe']), no:info('No Case Opened',['Customer does not want to proceed','Educate customer on credit dispute process','Document the call']) } },
+    open_crd_missing:{ text:'Open a Credit Reporting Dispute case?', desc:"Confirm customer's credit report is missing information.", icon:'❓', bg:'#e8f0fe', type:'yn', kb:'VFO-SBS-Credit-Reporting-Dispute-Direct-Credit-Reporting-Dispute', branches:{ yes:cls('CRD — Missing Information','Credit Reporting Dispute','VFO-SBS-Credit-Reporting-Dispute-Direct-Credit-Reporting-Dispute',['Workstream: Credit Reporting Dispute — Missing Information','Collect the credit bureau name and report date','Submit dispute to eOscar within required timeframe']), no:info('No Case Opened',['Customer does not want to proceed','Document the call']) } },
+    open_goodwill:{ text:'Open a Good Will Adjustment Request case?', desc:'Customer requesting goodwill adjustment — no inaccuracy but asking for consideration.', icon:'🤝', bg:'#e8f5e9', type:'yn', kb:'VFO-SBS-Good-Will-Adjustment-Request', branches:{ yes:cls('Good Will Adjustment Request','Credit Reporting Dispute','VFO-SBS-Good-Will-Adjustment-Request',['Workstream: Goodwill Adjustment Request','Confirm account is in good standing or paid off','Review customer payment history for eligibility','Submit goodwill request for supervisor review']), no:info('No Case Opened',['Customer does not wish to proceed','Document call and provide educational guidance']) } }
+  }},
+  money_account_transaction:{ subtitle:"Let's confirm the Money Account transaction issue.", start:'money_issue_type', q:{
+    money_issue_type:{ text:'What type of Money Account issue is the customer reporting?', desc:'Select the most accurate description.', icon:'💰', bg:'#e8f5e9', type:'chip', choices:[{label:'Unauthorized transfer or transaction',value:'unauthorized'},{label:'Transfer sent but not received',value:'transfer_dispute'},{label:'Other Money Account issue',value:'other_money'}], branches:{ unauthorized:'money_account_itself', transfer_dispute:cls('Transfer Dispute','Transfer Dispute','VFO-SBS-Affirm-Money-Transfer-Dispute-New',['Workstream: Affirm Money Transfer Dispute','Collect transfer date and amount','Confirm sending and receiving account details','Initiate transfer dispute process']), other_money:cls('Money Account Transaction Issue','Money Account Transaction Issue',null,['Workstream: Money Account Transaction Issue','Collect full transaction details','Review account transaction history','Escalate to Money Account specialist if needed']) } },
+    money_account_itself:{ text:"Was the Money Account itself opened without the customer's authorization?", desc:'Is the customer claiming the entire account was opened fraudulently?', icon:'⚠️', bg:'#fce4e8', type:'yn', branches:{ yes:cls('Unauthorized Affirm Money Account Claim','Unauthorized Activity','VFO-SBS-Unauthorized-Activity',['Workstream: Unauthorized Money Account Claim','Collect caller information and account details','Confirm Money Account balance and transactions','Escalate to Fraud Ops immediately']), no:cls('Money Account Transaction Issue','Money Account Transaction Issue',null,['Workstream: Money Account Transaction Issue','Collect unauthorized transaction details','Review account transaction history','Open dispute case and escalate to specialist']) } }
+  }},
+  billing_statement_dispute:{ subtitle:"Let's confirm the Billing Statement Dispute.", start:'billing_open_case', q:{
+    billing_open_case:{ text:'Is there an existing open billing dispute case for this customer?', desc:'Check the customer account for any open billing dispute before creating a new one.', icon:'📄', bg:'#e8e8fb', type:'yn', kb:'VFO-SBS-Billing-Statement-Disputes', branches:{ yes:info('Locate Existing Dispute',['Locate the existing billing dispute case in Salesforce','Attach the call record to the existing case','Provide status update to the customer','Do not open a duplicate case']), no:cls('Billing Statement Dispute','Billing Statement Dispute','VFO-SBS-Billing-Statement-Disputes',['Workstream: Billing Statement Dispute case','Review the billing statement with the customer','Identify the disputed line item(s)','Open case and escalate to billing team']) } }
+  }},
+  update_on_dispute_status:{ subtitle:"Let's confirm the dispute status inquiry.", start:'status_open_dispute', q:{
+    status_open_dispute:{ text:'Is the customer looking for an update on the status of an open dispute?', desc:'Confirm the customer has an existing dispute in progress.', icon:'🔄', bg:'#e8e8fb', type:'yn', branches:{ yes:'status_locate_case', no:info('No Open Dispute',['Customer does not have an open dispute on file','Review account history with customer','If a new issue is identified, select the appropriate dispute category']) } },
+    status_locate_case:{ text:'Have you located the existing dispute case?', desc:'Search for the open case by account, case number, or recent case activity.', icon:'🔍', bg:'#e8f0fe', type:'yn', branches:{ yes:info('Attach Call & Provide Update',['Attach VoiceCall record to the existing open case','Provide status update based on case notes','Document any new information','Do not open a duplicate case']), no:cls('Update on Dispute Status','Update on Dispute Status',null,['Open an Update on Dispute Status case','Document customer details and dispute reference number','Escalate to the disputes team to locate the original case','Follow up with customer within 1 business day']) } }
+  }},
+  disagree_with_resolution:{ subtitle:"Let's confirm the disagreement with dispute resolution.", start:'resolution_resolved', q:{
+    resolution_resolved:{ text:'Is the customer requesting an update on a resolved dispute?', desc:'Confirm the original dispute is fully closed and customer received the outcome.', icon:'📬', bg:'#fff3e0', type:'yn', branches:{ yes:info('Review Resolution & Educate',['Locate the existing dispute case in Salesforce','Review the resolution and educate the customer on the outcome','If customer still disagrees, escalate the case for additional review']), no:info('Dispute Still Active',['Locate the existing dispute in Salesforce or Agent Portal','Attach the case to the call record and provide an update on current status']) } }
+  }},
+  other:{ subtitle:"Let's identify the best path for this inquiry.", start:'other_type', q:{
+    other_type:{ text:"What best describes the customer's dispute inquiry?", desc:"Select the option that most closely matches the customer's issue.", icon:'❓', bg:'#f5f5f5', type:'chip', choices:[{label:'Request for adjustment (no inaccuracy)',value:'adjustment'},{label:'Unload / Void a loan',value:'unload_void'},{label:'Payment question related to a dispute',value:'payment_q'},{label:'None of the above — transfer needed',value:'transfer_needed'}], branches:{ adjustment:cls('Request for Adjustment','Credit Reporting Dispute','VFO-SBS-Good-Will-Adjustment-Request',['Workstream: Request for Adjustment','Confirm no inaccuracy claim','Review account standing and eligibility','Submit for supervisor review']), unload_void:cls('Unload / Void Loan','Unload / Void Loan',null,['Workstream: Unload/Void Loan','Confirm loan status and merchant relationship','Process unload/void request in system']), payment_q:cls('Payment Question','Payment Question',null,['Workstream: Payment Question','Review account and payment history','Provide payment guidance and next steps']), transfer_needed:info('Transfer Call',['Issue not covered by standard dispute categories','Warm transfer to appropriate specialist team','Document call reason and transfer destination']) } }
+  }}
+};
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+var S = { page:1, catId:null, path:[], currentQ:null, result:null };
+
+// ─── NAVIGATION ──────────────────────────────────────────────────────────────
+function goPage(n) {
+  if (n === 2 && !S.catId) return;
+  if (n === 3 && !S.result) return;
+  S.page = n;
+  if (n === 2) { var tree=TREES[S.catId]; S.path=[]; S.currentQ=tree.start; S.result=null; }
+  render();
+}
+function jumpTo(n) {
+  if (n===1){ S.page=1; render(); return; }
+  if (n===2){ if(!S.catId) S.catId='fraudulent_activity'; S.page=2; S.path=[]; S.currentQ=TREES[S.catId].start; S.result=null; render(); return; }
+  if (n===3){ if(!S.catId) S.catId='fraudulent_activity'; S.result=TREES.fraudulent_activity.q.account_no_permission.branches.yes; S.page=3; render(); }
+}
+function selectCat(id){ S.catId=id; render(); }
+function answerQuestion(qId,value,label) {
+  var tree=TREES[S.catId]; var q=tree.q[qId]; var branch=q.branches[value];
+  S.path.push({qId:qId,answer:value,label:label});
+  if(typeof branch==='string'){ S.currentQ=branch; S.result=null; }
+  else { S.currentQ=null; S.result=branch; }
+  render();
+}
+function goBack() {
+  if(S.page===2){
+    if(S.path.length===0){ S.page=1; }
+    else { var last=S.path.pop(); S.currentQ=last.qId; S.result=null; }
+  } else if(S.page===3){
+    S.page=2;
+    var tree=TREES[S.catId]; var qId=tree.start;
+    for(var i=0;i<S.path.length;i++){
+      var b=tree.q[qId].branches[S.path[i].answer];
+      if(typeof b==='string'){ qId=b; } else { qId=null; break; }
+    }
+    S.currentQ=qId; S.result=(qId===null)?deriveResult():null;
+  }
+  render();
+}
+function deriveResult() {
+  var tree=TREES[S.catId]; var qId=tree.start; var result=null;
+  for(var i=0;i<S.path.length;i++){
+    var b=tree.q[qId].branches[S.path[i].answer];
+    if(typeof b==='string'){ qId=b; } else { result=b; break; }
+  }
+  return result;
+}
+function cancelFlow(){ S.page=1; S.catId=null; S.path=[]; S.currentQ=null; S.result=null; render(); }
+
+function simulateSubmit(btn) {
+  btn.disabled=true; btn.textContent='Creating case…';
+  setTimeout(function(){
+    btn.style.background='linear-gradient(135deg,#27ae60,#2ecc71)';
+    btn.textContent='✓ Case Created';
+    // Update record page details to show new case
+    var cls = S.result ? S.result.caseType || S.result.name : 'Unknown';
+    var detailCls = document.getElementById('detail-classification');
+    if(detailCls) { detailCls.textContent = cls; detailCls.className = 'field-item-value'; detailCls.style.color='#27ae60'; detailCls.style.fontWeight='700'; }
+    document.querySelector('.missing-case-banner').style.display = 'none';
+    setTimeout(function(){
+      alert('✓ Case created and linked to VoiceCall.\n\nClassification: ' + cls + '\nCase opened in a new console subtab via platformWorkspaceApi.openSubtab()\n\nFlowNavigationNextEvent fired.');
+    },400);
+  },1100);
+}
+
+// ─── RENDER ──────────────────────────────────────────────────────────────────
+function render() {
+  renderHeader(); renderBody(); renderFooter();
+  var tb=document.getElementById('transfer-banner');
+  tb.classList.toggle('visible', S.page===2 && !!TREES[S.catId] && !!TREES[S.catId].showTransfer);
+}
+function renderHeader() {
+  var title=document.getElementById('panel-title');
+  var sub=document.getElementById('panel-subtitle');
+  if(S.page===1){ title.textContent='Guided Dispute Classification'; sub.textContent='Select the type of dispute the customer is calling about.'; }
+  else if(S.page===2 && S.catId){ var cat=CATEGORIES.find(function(c){return c.id===S.catId;}); title.textContent='Confirm Case Classification'; sub.textContent=TREES[S.catId].subtitle||''; }
+  else if(S.page===3){ title.textContent='Review & Apply Classification'; sub.textContent='Confirm the case details and apply.'; }
+}
+function renderBody() {
+  var body=document.getElementById('panel-body');
+  if(S.page===1) body.innerHTML=renderPage1();
+  else if(S.page===2) body.innerHTML=renderPage2();
+  else body.innerHTML=renderPage3();
+}
+function renderPage1() {
+  var html='<div class="cat-grid">';
+  CATEGORIES.forEach(function(c){
+    var sel=S.catId===c.id?' selected':'';
+    html+='<div class="cat-card'+sel+'" onclick="selectCat(\''+c.id+'\')">';
+    html+='<div class="cat-icon" style="background:'+c.bg+'">'+c.icon+'</div>';
+    html+='<div><div class="cat-label">'+c.label+'</div><div class="cat-desc">'+c.desc+'</div></div></div>';
+  });
+  return html+'</div>';
+}
+function renderPage2() {
+  var tree=TREES[S.catId]; var html='<div class="q-list">';
+  S.path.forEach(function(step){
+    var q=tree.q[step.qId];
+    var badgeClass=step.answer==='yes'?'yes':(step.answer==='no'?'no':'choice');
+    var badgeText=step.label||(step.answer==='yes'?'✓ Yes':(step.answer==='no'?'✗ No':step.answer));
+    html+='<div class="q-card answered"><div class="q-icon" style="background:'+q.bg+'">'+q.icon+'</div><div class="q-body"><div class="q-title">'+q.text+'</div><div class="q-controls"><span class="q-answered-badge '+badgeClass+'">'+badgeText+'</span></div></div></div>';
+  });
+  if(S.currentQ){ html+=renderActiveCard(S.currentQ,tree.q[S.currentQ]); }
+  if(S.result){ html+=renderResultCard(S.result); }
+  return html+'</div>';
+}
+function renderActiveCard(qId,q) {
+  var html='<div class="q-card"><div class="q-icon" style="background:'+q.bg+'">'+q.icon+'</div><div class="q-body"><div class="q-title">'+q.text+'</div><div class="q-desc">'+q.desc+'</div><div class="q-controls">';
+  if(q.type==='yn'){
+    if(q.kb) html+='<button class="kb-btn" onclick="openKb(\''+q.kb+'\')">See Knowledgebase</button>';
+    html+='<div class="toggle-group"><button class="toggle-btn" onclick="answerQuestion(\''+qId+'\',\'yes\',\'✓ Yes\')">Yes</button><button class="toggle-btn" onclick="answerQuestion(\''+qId+'\',\'no\',\'✗ No\')">No</button></div>';
+  } else if(q.type==='chip'){
+    if(q.kb) html+='<button class="kb-btn" onclick="openKb(\''+q.kb+'\')">See Knowledgebase</button><div style="margin:3px 0;"></div>';
+    html+='<div class="chip-group">';
+    q.choices.forEach(function(ch){ html+='<div class="chip" onclick="answerQuestion(\''+qId+'\',\''+ch.value+'\',\''+ch.label+'\')">'+ch.label+'</div>'; });
+    html+='</div>';
+  }
+  return html+'</div></div></div>';
+}
+function renderResultCard(r) {
+  var tc=r._type==='classification'?'type-classification':'type-info';
+  var lbl=r._type==='classification'?'Case Classification:':'Agent Guidance:';
+  var html='<div class="result-card visible '+tc+'"><div class="result-label">'+lbl+'</div><div class="result-name">'+r.name+'</div><ul class="result-actions">';
+  r.actions.forEach(function(a){ html+='<li>'+a+'</li>'; });
+  return html+'</ul></div>';
+}
+function renderPage3() {
+  var cat=CATEGORIES.find(function(c){return c.id===S.catId;});
+  var r=S.result; var isC=r&&r._type==='classification';
+  var html='<div class="confirm-wrap">';
+  html+='<div class="open-cases-card"><h4>⚠️ 2 Open Cases Found</h4>';
+  html+='<div class="case-row"><span class="case-num">00046799279</span><span style="flex:1;color:#666;">Unauthorized Activity · Phone</span><span class="case-status-badge">Open</span><button class="use-btn" onclick="alert(\'Case 00046799279 linked to VoiceCall.\')">Use</button></div>';
+  html+='<div class="case-row"><span class="case-num">00046712044</span><span style="flex:1;color:#666;">Fraud Investigation</span><span class="case-status-badge">In Progress</span><button class="use-btn" onclick="alert(\'Case 00046712044 linked to VoiceCall.\')">Use</button></div>';
+  html+='</div>';
+  html+='<div class="summary-card"><h3>New Case Details</h3>';
+  html+='<div class="summary-row"><span class="s-lbl">Customer</span><span class="s-val">Sarah Johnson</span></div>';
+  html+='<div class="summary-row"><span class="s-lbl">Dispute Category</span><span class="s-val">'+(cat?cat.label:'')+'</span></div>';
+  if(r){
+    html+='<div class="summary-row"><span class="s-lbl">Classification</span><span class="s-val">'+r.name+'</span></div>';
+    if(isC&&r.caseType) html+='<div class="summary-row"><span class="s-lbl">Case Type</span><span class="s-val">'+r.caseType+'</span></div>';
+    if(isC&&r.kb) html+='<div class="summary-row"><span class="s-lbl">KB Article</span><span class="s-val" style="color:#5867e8;font-size:10px;">'+r.kb+'</span></div>';
+  }
+  html+='<div class="summary-row"><span class="s-lbl">Origin</span><span class="s-val">Phone</span></div>';
+  html+='<div class="summary-row"><span class="s-lbl">Source Type</span><span class="s-val">Guided Experience</span></div>';
+  html+='</div>';
+  if(r){
+    var tc=isC?'type-classification':'type-info';
+    html+='<div class="result-card visible '+tc+'"><div class="result-label">'+(isC?'Action Checklist:':'Agent Guidance:')+'</div><div class="result-name">'+r.name+'</div><ul class="result-actions">';
+    r.actions.forEach(function(a){ html+='<li>'+a+'</li>'; });
+    html+='</ul></div>';
+  }
+  return html+'</div>';
+}
+function renderFooter() {
+  var dots=document.getElementById('dots');
+  var btns=document.getElementById('footer-btns');
+  dots.innerHTML=['','',''].map(function(_,i){ var c=i+1<S.page?'done':(i+1===S.page?'active':''); return '<div class="dot '+c+'"></div>'; }).join('');
+  if(S.page===1){
+    var nd=S.catId?'':' disabled';
+    btns.innerHTML='<button class="btn btn-outline" onclick="cancelFlow()">Cancel</button><button class="btn btn-primary"'+nd+' onclick="goPage(2)">Next →</button>';
+  } else if(S.page===2){
+    var nd2=S.result?'':' disabled';
+    btns.innerHTML='<button class="btn btn-outline" onclick="goBack()">← Back</button><button class="btn btn-outline" onclick="cancelFlow()">Cancel</button><button class="btn btn-primary"'+nd2+' onclick="goPage(3)">Next →</button>';
+  } else {
+    var lbl=(S.result&&S.result._type==='classification')?'Apply Classification':'Confirm &amp; Close';
+    btns.innerHTML='<button class="btn btn-outline" onclick="goBack()">← Back</button><button class="btn btn-outline" onclick="cancelFlow()">Cancel</button><button class="btn btn-primary" onclick="simulateSubmit(this)">'+lbl+'</button>';
+  }
+}
+function openKb(urlName){ alert('Opens KB article "'+urlName+'" in a new console subtab via platformWorkspaceApi.openSubtab()\n\nAgent stays on this screen — no navigation away.'); }
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+render();
+</script>
+</body>
+</html>
