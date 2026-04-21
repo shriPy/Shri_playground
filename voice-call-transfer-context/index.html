@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Voice Call — Incoming transfer context (mockup)</title>
+  <style>
+    :root {
+      --bg-page: #f7f7fb;
+      --brand-start: #3d0f85;
+      --brand-end: #5867e8;
+      --text: #1a1a2e;
+      --muted: #888;
+      --banner-bg: #fff8e1;
+      --banner-border: #ffe082;
+      --banner-text: #8a5700;
+      --card-border: #e0e0ee;
+      --empty-bg: #f3f2f2;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 24px;
+      font-family: "Salesforce Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text);
+      line-height: 1.45;
+    }
+    .page-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #444;
+      margin: 0 0 16px;
+    }
+    .page-note {
+      font-size: 13px;
+      color: #555;
+      margin: 0 0 20px;
+      max-width: 640px;
+      line-height: 1.5;
+    }
+    .samples {
+      display: grid;
+      gap: 28px;
+      max-width: 440px;
+    }
+    .mock-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    /* —— Matches guidedAgentDisputes / redesign panel —— */
+    .vct-root {
+      border-radius: 8px;
+      overflow: hidden;
+      background: #fff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .vct-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      padding: 14px 16px 12px;
+      background: linear-gradient(135deg, var(--brand-start) 0%, var(--brand-end) 100%);
+      color: #fff;
+    }
+    .vct-header-title {
+      font-size: 15px;
+      font-weight: 700;
+      margin: 0 0 4px;
+    }
+    .vct-header-sub {
+      font-size: 12px;
+      margin: 0;
+      opacity: 0.88;
+      max-width: 320px;
+    }
+    .vct-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.2);
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .vct-banner {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 8px 16px;
+      background: var(--banner-bg);
+      color: var(--banner-text);
+      font-size: 12px;
+      font-weight: 500;
+      border-bottom: 1px solid var(--banner-border);
+    }
+    .vct-banner-icon { flex-shrink: 0; font-size: 14px; margin-top: 1px; }
+    .vct-body {
+      padding: 14px 16px 16px;
+      background: var(--bg-page);
+    }
+    .vct-review {
+      background: #fff;
+      border: 1.5px solid var(--card-border);
+      border-radius: 10px;
+      padding: 14px 16px;
+    }
+    .vct-section {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid #f0f0f8;
+    }
+    .vct-section:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+    .vct-section:first-child { padding-top: 0; }
+    .vct-k {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin: 0;
+      flex-shrink: 0;
+    }
+    .vct-v {
+      font-size: 13px;
+      margin: 0;
+      text-align: right;
+      color: var(--text);
+    }
+    .vct-v--emph {
+      font-weight: 700;
+      color: var(--brand-start);
+    }
+    .vct-summary {
+      text-align: right;
+      max-width: 240px;
+      word-break: break-word;
+    }
+    .vct-section--verify {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 8px;
+    }
+    .vct-section--verify .vct-k { width: 100%; }
+    .vct-verify-callout {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 2px solid transparent;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .vct-verify-callout--verified {
+      background: #ecf7ec;
+      border-color: rgba(46, 132, 74, 0.45);
+      box-shadow: 0 0 0 1px rgba(46, 132, 74, 0.12);
+    }
+    .vct-verify-callout--notverified {
+      background: #fff5e6;
+      border-color: rgba(254, 147, 57, 0.85);
+      box-shadow: 0 0 0 1px rgba(186, 5, 23, 0.08);
+    }
+    .vct-verify-ico {
+      font-size: 18px;
+      line-height: 1;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .vct-verify-callout--verified .vct-verify-ico { color: #2e844a; }
+    .vct-verify-callout--notverified .vct-verify-ico { color: #dd7a01; }
+    .vct-verify-txt {
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1.35;
+      flex: 1;
+    }
+    .vct-verify-callout--verified .vct-verify-txt { color: #0b5c2e; }
+    .vct-verify-callout--notverified .vct-verify-txt { color: #8a5700; }
+    .vct-empty {
+      padding: 14px 16px;
+      background: var(--empty-bg);
+      border-radius: 8px;
+      font-size: 13px;
+      color: #555;
+      text-align: center;
+    }
+    .vct-warn {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: #fff5e6;
+      border: 1px solid #fe9339;
+      font-size: 12px;
+      color: #3e3e3c;
+    }
+    footer.note {
+      margin-top: 32px;
+      font-size: 12px;
+      color: var(--muted);
+      max-width: 520px;
+    }
+    .playground-back {
+      margin: 0 0 20px;
+    }
+    .playground-back a {
+      color: var(--brand-end);
+      font-weight: 700;
+      text-decoration: none;
+      font-size: 14px;
+    }
+    .playground-back a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <p class="playground-back"><a href="../index.html">← Shri's Playground</a></p>
+  <p class="page-title">Product mockup — add <strong>voiceCallTransferContext</strong> to the Voice Call record page (same visual language as redesigned guided workflow).</p>
+  <p class="page-note"><strong>Runtime behavior:</strong> the Lightning component renders <em>only</em> when there is a prior call <em>and</em> a Voice Call Extension with data. If there is no previous call or no extension row, the component shows nothing (no empty state). States B and C below are for documentation only.</p>
+
+  <div class="samples">
+    <div>
+      <div class="mock-label">State A — Transfer with extension data (primary)</div>
+      <div class="vct-root" aria-label="Incoming transfer context">
+        <div class="vct-header">
+          <div>
+            <p class="vct-header-title">Incoming transfer context</p>
+            <p class="vct-header-sub">From the previous leg of this call. Stays visible for the whole call.</p>
+          </div>
+          <span class="vct-chip">Prior call</span>
+        </div>
+        <div class="vct-banner">
+          <span class="vct-banner-icon" aria-hidden="true">📞</span>
+          <span>Transferred call — details below were captured on the prior agent leg.</span>
+        </div>
+        <div class="vct-body">
+          <div class="vct-review">
+            <div class="vct-section">
+              <p class="vct-k">Transfer reason</p>
+              <p class="vct-v vct-v--emph">Wrong Department - Single Issue</p>
+            </div>
+            <div class="vct-section vct-section--verify">
+              <p class="vct-k">Verification status</p>
+              <div class="vct-verify-callout vct-verify-callout--verified" role="status">
+                <span class="vct-verify-ico" aria-hidden="true">✓</span>
+                <span class="vct-verify-txt">Customer Verified</span>
+              </div>
+            </div>
+            <div class="vct-section">
+              <p class="vct-k">Transfer summary</p>
+              <p class="vct-v vct-summary">testing customer verification for transfer to check auth status</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="mock-label">State A2 — Same panel, customer not verified (attention)</div>
+      <div class="vct-root" aria-label="Incoming transfer context not verified">
+        <div class="vct-header">
+          <div>
+            <p class="vct-header-title">Incoming transfer context</p>
+            <p class="vct-header-sub">From the previous leg of this call. Stays visible for the whole call.</p>
+          </div>
+          <span class="vct-chip">Prior call</span>
+        </div>
+        <div class="vct-banner">
+          <span class="vct-banner-icon" aria-hidden="true">📞</span>
+          <span>Transferred call — details below were captured on the prior agent leg.</span>
+        </div>
+        <div class="vct-body">
+          <div class="vct-review">
+            <div class="vct-section">
+              <p class="vct-k">Transfer reason</p>
+              <p class="vct-v vct-v--emph">Wrong Department - Single Issue</p>
+            </div>
+            <div class="vct-section vct-section--verify">
+              <p class="vct-k">Verification status</p>
+              <div class="vct-verify-callout vct-verify-callout--notverified" role="status">
+                <span class="vct-verify-ico" aria-hidden="true">⚠</span>
+                <span class="vct-verify-txt">Customer not Verified</span>
+              </div>
+            </div>
+            <div class="vct-section">
+              <p class="vct-k">Transfer summary</p>
+              <p class="vct-v vct-summary">Agent could not complete verification before transfer.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="mock-label">State B — No previous call (cold / direct inbound)</div>
+      <div class="vct-root">
+        <div class="vct-header">
+          <div>
+            <p class="vct-header-title">Incoming transfer context</p>
+            <p class="vct-header-sub">From the previous leg of this call. Stays visible for the whole call.</p>
+          </div>
+        </div>
+        <div class="vct-body">
+          <div class="vct-empty">No incoming transfer — this call is not linked to a prior call leg.</div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="mock-label">State C — Prior call exists, extension row missing</div>
+      <div class="vct-root">
+        <div class="vct-header">
+          <div>
+            <p class="vct-header-title">Incoming transfer context</p>
+            <p class="vct-header-sub">From the previous leg of this call. Stays visible for the whole call.</p>
+          </div>
+          <span class="vct-chip">Prior call</span>
+        </div>
+        <div class="vct-banner">
+          <span class="vct-banner-icon" aria-hidden="true">📞</span>
+          <span>Transferred call — details below were captured on the prior agent leg.</span>
+        </div>
+        <div class="vct-body">
+          <div class="vct-warn">
+            <span aria-hidden="true">⚠️</span>
+            <span>A prior call is linked, but no Voice Call Extension row was found for that leg. Transfer reason and summary may be incomplete.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="note">
+    Data source (production): <code>VoiceCall.PreviousCallId</code> →
+    <code>Voice_Call_Extension__c</code> where <code>Voice_Call__c</code> = previous call, fields
+    <code>Call_Transfer_Reason__c</code>, <code>Is_the_Customer_Verified__c</code>,
+    <code>Customer_s_Stated_Issue__c</code> (same as guided / voice flows today).
+  </footer>
+</body>
+</html>
