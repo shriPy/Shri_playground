@@ -327,20 +327,60 @@
     .comparison-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 24px;
+      gap: 0;
       margin-top: 24px;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid var(--card-border);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
     }
     @media (max-width: 640px) {
       .comparison-grid { grid-template-columns: 1fr; }
     }
 
+    .comparison-col {
+      padding: 20px 20px 24px;
+    }
+    .comparison-col.inbound {
+      background: linear-gradient(160deg, #eef0ff 0%, #f5f3ff 100%);
+      border-right: 1px solid var(--card-border);
+    }
+    .comparison-col.transfer {
+      background: linear-gradient(160deg, #fff8ee 0%, #fff3e0 100%);
+    }
+    @media (max-width: 640px) {
+      .comparison-col.inbound { border-right: none; border-bottom: 1px solid var(--card-border); }
+    }
+
     .comparison-col-label {
-      font-size: 11px;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .comparison-col.inbound .comparison-col-label { color: #3d0f85; }
+    .comparison-col.transfer .comparison-col-label { color: #8a5700; }
+
+    .col-type-badge {
+      display: inline-block;
+      font-size: 10px;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--muted);
-      margin-bottom: 10px;
+      letter-spacing: 0.05em;
+      border-radius: 4px;
+      padding: 2px 7px;
+    }
+    .comparison-col.inbound .col-type-badge {
+      background: #3d0f85;
+      color: #fff;
+    }
+    .comparison-col.transfer .col-type-badge {
+      background: #8a5700;
+      color: #fff;
     }
 
     /* ══════════════════════════════════════════════════
@@ -359,8 +399,25 @@
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.06em;
-      color: var(--muted);
       margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .mock-label.inbound { color: #3d0f85; }
+    .mock-label.transfer { color: #8a5700; }
+
+    .mock-card-wrap {
+      border-radius: 12px;
+      overflow: hidden;
+      padding: 14px 14px 16px;
+      border: 1px solid var(--card-border);
+    }
+    .mock-card-wrap.inbound {
+      background: linear-gradient(160deg, #eef0ff 0%, #f5f3ff 100%);
+    }
+    .mock-card-wrap.transfer {
+      background: linear-gradient(160deg, #fff8ee 0%, #fff3e0 100%);
     }
 
     /* ── SVG icons (inline, no external deps) ─────── */
@@ -441,7 +498,7 @@
     <div>
       <img
         class="current-screenshot"
-        src="https://lh7-rt.googleusercontent.com/docsz/AD_4nXf9LzRyYQ4op5GMX25Ouo8376EkMYthQtzQK7hKaMcNJciN6ICsWqFkryYskMdOFJg41QlWzrUbpiPm1vJVJ4-lc67qo9Bi6DvnI65LIbES8De-UwWvO8pyC-OesIN24L_eGN_s-21g5Dd-lTZq-S0Ja"
+        src="./images/current-experience.png"
         alt="Current experience — context split across 3 separate areas"
       />
       <p class="img-caption">Current experience — auth status, AI summary, and transfer context sit in 3 separate areas</p>
@@ -460,8 +517,11 @@
   <div class="comparison-grid">
 
     <!-- INBOUND column -->
-    <div>
-      <div class="comparison-col-label">Inbound Call</div>
+    <div class="comparison-col inbound">
+      <div class="comparison-col-label">
+        <span class="col-type-badge">Inbound</span>
+        Inbound Call
+      </div>
       <div class="vct-root">
         <div class="vct-header">
           <span class="vct-header-chip">Inbound</span>
@@ -517,11 +577,14 @@
           </span>
         </div>
       </div>
-    </div>
+    </div><!-- /inbound col -->
 
     <!-- TRANSFER column -->
-    <div>
-      <div class="comparison-col-label">Transferred Call</div>
+    <div class="comparison-col transfer">
+      <div class="comparison-col-label">
+        <span class="col-type-badge">Transfer</span>
+        Transferred Call
+      </div>
       <div class="vct-root">
         <div class="vct-header">
           <span class="vct-header-chip">Transfer</span>
@@ -571,7 +634,7 @@
           </span>
         </div>
       </div>
-    </div>
+    </div><!-- /transfer col -->
 
   </div><!-- /comparison-grid -->
 
@@ -588,7 +651,11 @@
 
     <!-- State 1: Inbound — IVR Authenticated -->
     <div class="mock-card">
-      <div class="mock-label">Inbound · IVR Authenticated</div>
+      <div class="mock-label inbound">
+        <span class="col-type-badge" style="background:#3d0f85;color:#fff;">Inbound</span>
+        IVR Authenticated
+      </div>
+      <div class="mock-card-wrap inbound">
       <div class="vct-root">
         <div class="vct-header">
           <span class="vct-header-chip">Inbound</span>
@@ -615,11 +682,16 @@
           </div>
         </div>
       </div>
+      </div><!-- /mock-card-wrap -->
     </div>
 
     <!-- State 2: Inbound — Not Authenticated -->
     <div class="mock-card">
-      <div class="mock-label">Inbound · Not Authenticated</div>
+      <div class="mock-label inbound">
+        <span class="col-type-badge" style="background:#3d0f85;color:#fff;">Inbound</span>
+        Not Authenticated
+      </div>
+      <div class="mock-card-wrap inbound">
       <div class="vct-root">
         <div class="vct-header">
           <span class="vct-header-chip">Inbound</span>
@@ -643,11 +715,16 @@
           </div>
         </div>
       </div>
+      </div><!-- /mock-card-wrap -->
     </div>
 
     <!-- State 3: Transfer — Customer Verified -->
     <div class="mock-card">
-      <div class="mock-label">Transfer · Customer Verified</div>
+      <div class="mock-label transfer">
+        <span class="col-type-badge" style="background:#8a5700;color:#fff;">Transfer</span>
+        Customer Verified
+      </div>
+      <div class="mock-card-wrap transfer">
       <div class="vct-root">
         <div class="vct-header">
           <span class="vct-header-chip">Transfer</span>
@@ -682,11 +759,16 @@
           </span>
         </div>
       </div>
+      </div><!-- /mock-card-wrap -->
     </div>
 
     <!-- State 4: Transfer — Customer Not Verified -->
     <div class="mock-card">
-      <div class="mock-label">Transfer · Customer Not Verified</div>
+      <div class="mock-label transfer">
+        <span class="col-type-badge" style="background:#8a5700;color:#fff;">Transfer</span>
+        Customer Not Verified
+      </div>
+      <div class="mock-card-wrap transfer">
       <div class="vct-root">
         <div class="vct-header">
           <span class="vct-header-chip">Transfer</span>
@@ -722,11 +804,16 @@
           </span>
         </div>
       </div>
+      </div><!-- /mock-card-wrap -->
     </div>
 
     <!-- State 5: Transfer — Prior call exists, extension missing -->
     <div class="mock-card">
-      <div class="mock-label">Transfer · Extension record missing</div>
+      <div class="mock-label transfer">
+        <span class="col-type-badge" style="background:#8a5700;color:#fff;">Transfer</span>
+        Extension record missing
+      </div>
+      <div class="mock-card-wrap transfer">
       <div class="vct-root">
         <div class="vct-header">
           <span class="vct-header-chip">Transfer</span>
@@ -744,6 +831,7 @@
           <div style="font-size:12.5px; color:var(--muted); font-style:italic;">Transfer detail card not shown — <code>Voice_Call_Extension__c</code> record was not found for the prior call.</div>
         </div>
       </div>
+      </div><!-- /mock-card-wrap -->
     </div>
 
   </div><!-- /states-grid -->
