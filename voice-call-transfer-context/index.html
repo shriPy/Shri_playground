@@ -424,6 +424,13 @@
     .ico-check { color: var(--green-fg); }
     .ico-warn  { color: var(--amber-fg); }
     .ico-info  { color: var(--gray-fg); }
+
+    @media print {
+      * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+    }
   </style>
 </head>
 <body>
