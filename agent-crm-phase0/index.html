@@ -907,7 +907,8 @@
       overflow-y: auto;
     }
 
-    .ai-draft-actions {
+    .ai-draft-actions,
+    .ai-cta-row {
       display: flex;
       gap: 8px;
       margin-top: 10px;
@@ -917,6 +918,195 @@
       padding: 5px 12px;
       font-size: 12px;
     }
+
+    .btn-accept {
+      background: var(--success);
+      color: #fff;
+      border-color: var(--success);
+    }
+
+    .btn-accept:hover { background: #047857; border-color: #047857; }
+
+    .portal-link {
+      color: var(--indigo);
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .portal-link:hover { text-decoration: underline; }
+
+    .flow-note {
+      margin-top: 12px;
+      padding: 10px 12px;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .classification-suggestion {
+      padding: 12px;
+      background: var(--indigo-bg);
+      border: 1px solid #c7d2fe;
+      border-radius: var(--radius);
+      margin-bottom: 14px;
+    }
+
+    .classification-suggestion-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      color: var(--indigo);
+      margin-bottom: 6px;
+    }
+
+    .classification-suggestion-value {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .classification-suggestion-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .divider-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 16px 0 12px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: var(--text-light);
+    }
+
+    .divider-label::before,
+    .divider-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* Agent task progress modal */
+    .agent-progress-modal {
+      width: 480px;
+      max-width: 92vw;
+    }
+
+    .agent-progress-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .agent-progress-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--indigo-bg);
+      color: var(--indigo);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+
+    .agent-progress-title { font-size: 15px; font-weight: 700; }
+    .agent-progress-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+    .agent-steps { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+
+    .agent-step {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: #fafbfc;
+      opacity: .55;
+      transition: opacity .2s, border-color .2s, background .2s;
+    }
+
+    .agent-step.active {
+      opacity: 1;
+      border-color: #c7d2fe;
+      background: var(--indigo-bg);
+    }
+
+    .agent-step.done {
+      opacity: 1;
+      border-color: #bbf7d0;
+      background: var(--success-bg);
+    }
+
+    .agent-step-indicator {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      flex-shrink: 0;
+      background: #fff;
+    }
+
+    .agent-step.active .agent-step-indicator {
+      border-color: var(--indigo);
+      color: var(--indigo);
+    }
+
+    .agent-step.done .agent-step-indicator {
+      border-color: var(--success);
+      background: var(--success);
+      color: #fff;
+    }
+
+    .agent-step-text { font-size: 13px; line-height: 1.45; }
+    .agent-step-detail { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+    .agent-progress-complete {
+      display: none;
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: var(--radius);
+      background: var(--success-bg);
+      border: 1px solid #bbf7d0;
+      color: #166534;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .agent-progress-complete.visible { display: block; }
+
+    .spinner {
+      width: 14px;
+      height: 14px;
+      border: 2px solid #c7d2fe;
+      border-top-color: var(--indigo);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
 
     /* ── Omni Widget ── */
     .omni-fab {
@@ -1252,6 +1442,7 @@
             <div class="case-meta">Opened Sep 20, 2026 at 2:14 PM PST &middot; Last updated 18 min ago &middot; SLA: 4h 22m remaining</div>
           </div>
           <div class="case-header-actions">
+            <button class="btn" onclick="openModal('modal-communicate')">Send Communication</button>
             <button class="btn" onclick="openModal('modal-reassign')">Reassign</button>
             <button class="btn btn-primary" onclick="openModal('modal-resolve')">Resolve</button>
           </div>
@@ -1357,6 +1548,10 @@
                     <span class="field-label">Verification</span>
                     <span class="field-value"><span class="verification-badge">Verified</span></span>
                   </div>
+                  <div class="field">
+                    <span class="field-label">Agent Portal</span>
+                    <span class="field-value"><a class="portal-link" href="#" onclick="return false;">Click for Agent Portal</a></span>
+                  </div>
                 </div>
                 <div class="loan-card">
                   <div class="loan-card-header">
@@ -1367,27 +1562,6 @@
                     <div class="loan-amount">$847.50</div>
                   </div>
                   <span class="loan-status">Current</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Agent Actions -->
-            <div class="card card-full">
-              <div class="card-header">Agent Actions</div>
-              <div class="card-body">
-                <div class="action-buttons">
-                  <button class="btn-action" onclick="openModal('modal-resolve')">
-                    <div class="btn-action-title">Resolve Query</div>
-                    <div class="btn-action-desc">Close case with resolution code and notes</div>
-                  </button>
-                  <button class="btn-action" onclick="openModal('modal-reassign')">
-                    <div class="btn-action-title">Reassign</div>
-                    <div class="btn-action-desc">Transfer to another agent or queue</div>
-                  </button>
-                  <button class="btn-action" onclick="openModal('modal-communicate')">
-                    <div class="btn-action-title">Send Communication</div>
-                    <div class="btn-action-desc">Email reply or secure message to customer</div>
-                  </button>
                 </div>
               </div>
             </div>
@@ -1655,12 +1829,18 @@
         <span class="ai-tag">Refund Request</span>
         <span class="ai-tag" style="margin-left: 6px;">Payment</span>
         <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px;">Confidence: 94%</div>
+        <div class="ai-cta-row">
+          <button class="btn btn-sm btn-primary" onclick="openModal('modal-classify')">Classify Case</button>
+        </div>
       </div>
 
       <div class="ai-section">
         <div class="ai-section-title">Recommended Action</div>
         <div class="ai-action-card">
           Verify merchant return credit in loan servicing system. If confirmed, apply $312.00 partial refund to loan ORD-928471 and notify customer of updated payment schedule.
+        </div>
+        <div class="ai-cta-row">
+          <button class="btn btn-sm btn-accept" onclick="startAgentTask()">Accept</button>
         </div>
       </div>
 
@@ -1820,6 +2000,117 @@ Sarah</div>
     </div>
   </div>
 
+  <!-- Modal: Classify Case -->
+  <div class="modal-overlay" id="modal-classify">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title">Classify Case</span>
+        <button class="modal-close" onclick="closeModal('modal-classify')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="classification-suggestion">
+          <div class="classification-suggestion-label">AI Suggestion</div>
+          <div class="classification-suggestion-value">Payment &rarr; Refund Request</div>
+          <div class="classification-suggestion-meta">94% confidence &middot; Matches inbound email intent and loan context</div>
+        </div>
+        <button class="btn btn-primary" style="width: 100%;" onclick="applySuggestedClassification()">Accept Suggested Classification</button>
+
+        <div class="divider-label">Or choose manually</div>
+
+        <div class="form-group">
+          <label class="form-label">Case Name</label>
+          <select class="form-select" id="classifyCaseName" onchange="updateClassificationOptions()">
+            <option value="Payment" selected>Payment</option>
+            <option value="Disputes">Disputes</option>
+            <option value="Account Updates">Account Updates</option>
+            <option value="Application">Application / Checkout</option>
+            <option value="Loan Activity">Loan Activity</option>
+            <option value="Complaint">Complaint</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Classification</label>
+          <select class="form-select" id="classifyClassification">
+            <option value="Refund Request" selected>Refund Request</option>
+            <option value="Autopay Setup">Autopay Setup</option>
+            <option value="Promise to Pay">Promise to Pay</option>
+            <option value="Payment Verification">Payment Verification</option>
+          </select>
+        </div>
+        <div class="flow-note">
+          Applying classification triggers the <strong>Master Case</strong> flow in Salesforce — updating record type, queue, entitlement, field set, and survey eligibility based on taxonomy.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closeModal('modal-classify')">Cancel</button>
+        <button class="btn btn-primary" onclick="applyManualClassification()">Apply Classification</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: AI Agent Task Progress -->
+  <div class="modal-overlay" id="modal-agent-task">
+    <div class="modal agent-progress-modal">
+      <div class="modal-header">
+        <span class="modal-title">AI Agent Working</span>
+        <button class="modal-close" onclick="closeAgentTask()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="agent-progress-header">
+          <div class="agent-progress-icon">AI</div>
+          <div>
+            <div class="agent-progress-title">Refund Processing Agent</div>
+            <div class="agent-progress-sub">Executing recommended action on Case #00847291</div>
+          </div>
+        </div>
+        <ul class="agent-steps" id="agentSteps">
+          <li class="agent-step" data-step="0">
+            <div class="agent-step-indicator">1</div>
+            <div>
+              <div class="agent-step-text">Verify merchant return in loan servicing</div>
+              <div class="agent-step-detail">Checking RMA WF-48291 against Wayfair order ORD-928471</div>
+            </div>
+          </li>
+          <li class="agent-step" data-step="1">
+            <div class="agent-step-indicator">2</div>
+            <div>
+              <div class="agent-step-text">Confirm merchant credit status</div>
+              <div class="agent-step-detail">Validating $312.00 return credit with Affirm backend</div>
+            </div>
+          </li>
+          <li class="agent-step" data-step="2">
+            <div class="agent-step-indicator">3</div>
+            <div>
+              <div class="agent-step-text">Apply partial refund to loan</div>
+              <div class="agent-step-detail">Updating loan ORD-928471 balance from $847.50 to $535.50</div>
+            </div>
+          </li>
+          <li class="agent-step" data-step="3">
+            <div class="agent-step-indicator">4</div>
+            <div>
+              <div class="agent-step-text">Recalculate payment schedule</div>
+              <div class="agent-step-detail">Generating updated installment plan for customer</div>
+            </div>
+          </li>
+          <li class="agent-step" data-step="4">
+            <div class="agent-step-indicator">5</div>
+            <div>
+              <div class="agent-step-text">Write case note and update status</div>
+              <div class="agent-step-detail">Logging action in Salesforce and setting case to Waiting for customer confirmation</div>
+            </div>
+          </li>
+        </ul>
+        <div class="agent-progress-complete" id="agentComplete">
+          <strong>Task completed.</strong> Partial refund of $312.00 applied to loan ORD-928471. Updated balance: $535.50. Case note added and status set to <em>Waiting — Pending Customer Confirmation</em>. Ready for agent review.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" id="agentTaskCloseBtn" onclick="closeAgentTask()" disabled>Close</button>
+        <button class="btn btn-primary" id="agentTaskReviewBtn" onclick="closeAgentTask(); openModal('modal-communicate');" style="display: none;">Review &amp; Notify Customer</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal: Send Communication -->
   <div class="modal-overlay" id="modal-communicate">
     <div class="modal">
@@ -1937,6 +2228,102 @@ Sarah</textarea>
         this.classList.add('active');
       });
     });
+
+    const classificationMap = {
+      'Payment': ['Refund Request', 'Autopay Setup', 'Promise to Pay', 'Payment Verification'],
+      'Disputes': ['Unauthorized Activity', 'Item Not Received', 'Item Not As Described', 'Chargeback'],
+      'Account Updates': ['Update Email', 'Update Phone', 'Update Address', 'Close Account'],
+      'Application': ['Application Declination', 'Bank Linking Review', 'Virtual Card Issue'],
+      'Loan Activity': ['Unload / Void Loan', 'Loan Terms Change'],
+      'Complaint': ['Direct Complaint', 'Formal Complaint']
+    };
+
+    function updateClassificationOptions() {
+      const caseName = document.getElementById('classifyCaseName').value;
+      const classificationSelect = document.getElementById('classifyClassification');
+      const options = classificationMap[caseName] || [];
+      classificationSelect.innerHTML = options.map((opt, i) =>
+        `<option value="${opt}"${i === 0 ? ' selected' : ''}>${opt}</option>`
+      ).join('');
+    }
+
+    function applySuggestedClassification() {
+      applyManualClassification('Payment', 'Refund Request', true);
+    }
+
+    function applyManualClassification(caseNameOverride, classificationOverride, fromSuggestion) {
+      const caseName = caseNameOverride || document.getElementById('classifyCaseName').value;
+      const classification = classificationOverride || document.getElementById('classifyClassification').value;
+
+      document.querySelectorAll('#panel-case .field-value').forEach(field => {
+        const label = field.previousElementSibling;
+        if (!label) return;
+        if (label.textContent === 'Case Name') field.textContent = caseName;
+        if (label.textContent === 'Classification') field.textContent = classification;
+      });
+
+      closeModal('modal-classify');
+
+      const suffix = fromSuggestion ? ' (AI suggestion accepted)' : '';
+      alert(`Classification applied${suffix}.\n\nCase Name: ${caseName}\nClassification: ${classification}\n\nMaster Case flow would update record type, queue, and field set in Salesforce.`);
+    }
+
+    let agentTaskTimer = null;
+
+    function resetAgentTaskModal() {
+      document.querySelectorAll('#agentSteps .agent-step').forEach(step => {
+        step.classList.remove('active', 'done');
+        const indicator = step.querySelector('.agent-step-indicator');
+        indicator.textContent = step.dataset.step === '4' ? '5' : String(Number(step.dataset.step) + 1);
+      });
+      document.getElementById('agentComplete').classList.remove('visible');
+      document.getElementById('agentTaskCloseBtn').disabled = true;
+      document.getElementById('agentTaskReviewBtn').style.display = 'none';
+    }
+
+    function startAgentTask() {
+      resetAgentTaskModal();
+      openModal('modal-agent-task');
+
+      const steps = Array.from(document.querySelectorAll('#agentSteps .agent-step'));
+      let current = 0;
+
+      function advanceStep() {
+        if (current > 0) {
+          const prev = steps[current - 1];
+          prev.classList.remove('active');
+          prev.classList.add('done');
+          prev.querySelector('.agent-step-indicator').textContent = '✓';
+        }
+
+        if (current < steps.length) {
+          const step = steps[current];
+          step.classList.add('active');
+          const indicator = step.querySelector('.agent-step-indicator');
+          indicator.innerHTML = '<span class="spinner"></span>';
+          current += 1;
+          agentTaskTimer = setTimeout(advanceStep, 1100);
+        } else {
+          const lastStep = steps[steps.length - 1];
+          lastStep.classList.remove('active');
+          lastStep.classList.add('done');
+          lastStep.querySelector('.agent-step-indicator').textContent = '✓';
+          document.getElementById('agentComplete').classList.add('visible');
+          document.getElementById('agentTaskCloseBtn').disabled = false;
+          document.getElementById('agentTaskReviewBtn').style.display = 'inline-flex';
+        }
+      }
+
+      agentTaskTimer = setTimeout(advanceStep, 400);
+    }
+
+    function closeAgentTask() {
+      if (agentTaskTimer) {
+        clearTimeout(agentTaskTimer);
+        agentTaskTimer = null;
+      }
+      closeModal('modal-agent-task');
+    }
   </script>
 
 </body>
