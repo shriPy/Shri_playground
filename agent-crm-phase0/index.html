@@ -1,0 +1,1943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Affirm Agent CRM — Phase 0 Demo</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --indigo: #4f46e5;
+      --indigo-light: #6366f1;
+      --indigo-dark: #4338ca;
+      --indigo-bg: #eef2ff;
+      --nav-dark: #1e1b4b;
+      --nav-mid: #312e81;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --text-light: #94a3b8;
+      --success: #059669;
+      --success-bg: #ecfdf5;
+      --warning: #d97706;
+      --warning-bg: #fffbeb;
+      --danger: #dc2626;
+      --radius: 8px;
+      --radius-lg: 12px;
+      --shadow: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.04);
+      --shadow-md: 0 4px 12px rgba(0,0,0,.1);
+      --sidebar-w: 56px;
+      --ai-panel-w: 320px;
+      --topbar-h: 56px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.5;
+      overflow: hidden;
+      height: 100vh;
+    }
+
+    /* ── Top Bar ── */
+    .topbar {
+      height: var(--topbar-h);
+      background: var(--nav-dark);
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      gap: 16px;
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #fff;
+      font-weight: 700;
+      font-size: 15px;
+      white-space: nowrap;
+      min-width: 200px;
+    }
+
+    .logo-mark {
+      width: 32px;
+      height: 32px;
+      background: var(--indigo);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 16px;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .logo-sub {
+      font-weight: 400;
+      font-size: 11px;
+      color: #a5b4fc;
+      display: block;
+      line-height: 1.2;
+    }
+
+    .search-wrap {
+      flex: 1;
+      max-width: 480px;
+      position: relative;
+    }
+
+    .search-wrap input {
+      width: 100%;
+      padding: 8px 12px 8px 36px;
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: var(--radius);
+      background: rgba(255,255,255,.08);
+      color: #fff;
+      font-size: 13px;
+      outline: none;
+      transition: border-color .15s, background .15s;
+    }
+
+    .search-wrap input::placeholder { color: #94a3b8; }
+    .search-wrap input:focus {
+      border-color: var(--indigo-light);
+      background: rgba(255,255,255,.12);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 11px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #94a3b8;
+      font-size: 14px;
+      pointer-events: none;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-left: auto;
+    }
+
+    .presence-select {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: var(--radius);
+      padding: 6px 12px;
+      color: #fff;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .presence-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #34d399;
+      flex-shrink: 0;
+    }
+
+    .presence-select select {
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 13px;
+      cursor: pointer;
+      outline: none;
+      appearance: none;
+      padding-right: 16px;
+    }
+
+    .presence-select select option { background: var(--nav-dark); color: #fff; }
+
+    .agent-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #fff;
+    }
+
+    .agent-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--indigo);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 12px;
+      color: #fff;
+      border: 2px solid rgba(255,255,255,.2);
+    }
+
+    .agent-name { font-weight: 600; font-size: 13px; }
+    .agent-role { font-size: 11px; color: #a5b4fc; }
+
+    /* ── Layout ── */
+    .app-layout {
+      display: flex;
+      padding-top: var(--topbar-h);
+      height: 100vh;
+    }
+
+    /* ── Left Sidebar ── */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--nav-mid);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 12px 0;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .nav-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #a5b4fc;
+      cursor: pointer;
+      transition: background .15s, color .15s;
+      font-size: 18px;
+      position: relative;
+    }
+
+    .nav-icon:hover { background: rgba(255,255,255,.1); color: #fff; }
+    .nav-icon.active { background: var(--indigo); color: #fff; }
+
+    .nav-icon svg { width: 20px; height: 20px; fill: currentColor; }
+
+    .nav-spacer { flex: 1; }
+
+    /* ── Main Content ── */
+    .main-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-width: 0;
+    }
+
+    /* ── Case Header ── */
+    .case-header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 24px 0;
+      flex-shrink: 0;
+    }
+
+    .case-header-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .case-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .case-badges {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .01em;
+    }
+
+    .badge-status { background: var(--indigo-bg); color: var(--indigo); }
+    .badge-channel { background: #f1f5f9; color: #475569; }
+    .badge-priority { background: var(--success-bg); color: var(--success); }
+
+    .case-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .case-header-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      transition: background .15s, border-color .15s, box-shadow .15s;
+      white-space: nowrap;
+    }
+
+    .btn:hover { background: #f1f5f9; }
+    .btn-primary {
+      background: var(--indigo);
+      color: #fff;
+      border-color: var(--indigo);
+    }
+    .btn-primary:hover { background: var(--indigo-dark); border-color: var(--indigo-dark); }
+
+    /* ── Tabs ── */
+    .tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: none;
+    }
+
+    .tab {
+      padding: 10px 20px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: color .15s, border-color .15s;
+      user-select: none;
+      position: relative;
+      top: 1px;
+    }
+
+    .tab:hover { color: var(--text); }
+    .tab.active {
+      color: var(--indigo);
+      border-bottom-color: var(--indigo);
+      font-weight: 600;
+    }
+
+    .tab-count {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 18px;
+      height: 18px;
+      padding: 0 5px;
+      border-radius: 999px;
+      background: var(--indigo-bg);
+      color: var(--indigo);
+      font-size: 11px;
+      font-weight: 700;
+      margin-left: 6px;
+    }
+
+    .tab.active .tab-count { background: var(--indigo); color: #fff; }
+
+    /* ── Tab Content Area ── */
+    .content-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 24px;
+    }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── Cards ── */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .card-full { grid-column: 1 / -1; }
+
+    .card-header {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #fafbfc;
+    }
+
+    .card-body { padding: 16px 18px; }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px 24px;
+    }
+
+    .field { display: flex; flex-direction: column; gap: 2px; }
+    .field-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      color: var(--text-light);
+    }
+    .field-value { font-size: 13px; color: var(--text); font-weight: 500; }
+    .field-value.link { color: var(--indigo); cursor: pointer; }
+    .field-value.link:hover { text-decoration: underline; }
+
+    /* Loan card */
+    .loan-card {
+      margin-top: 14px;
+      padding: 14px;
+      background: var(--indigo-bg);
+      border: 1px solid #c7d2fe;
+      border-radius: var(--radius);
+    }
+
+    .loan-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .loan-merchant { font-weight: 600; font-size: 13px; }
+    .loan-amount { font-size: 18px; font-weight: 700; color: var(--indigo); }
+    .loan-meta { font-size: 12px; color: var(--text-muted); }
+    .loan-status {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: var(--success-bg);
+      color: var(--success);
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    /* Agent Actions */
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn-action {
+      flex: 1;
+      min-width: 140px;
+      padding: 12px 16px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: var(--surface);
+      cursor: pointer;
+      text-align: left;
+      transition: border-color .15s, box-shadow .15s;
+    }
+
+    .btn-action:hover {
+      border-color: var(--indigo-light);
+      box-shadow: 0 0 0 3px rgba(79,70,229,.1);
+    }
+
+    .btn-action-title { font-weight: 600; font-size: 13px; color: var(--text); }
+    .btn-action-desc { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+    /* Timeline */
+    .timeline { list-style: none; }
+
+    .timeline-item {
+      display: flex;
+      gap: 14px;
+      padding-bottom: 20px;
+      position: relative;
+    }
+
+    .timeline-item:not(:last-child)::before {
+      content: '';
+      position: absolute;
+      left: 15px;
+      top: 32px;
+      bottom: 0;
+      width: 2px;
+      background: var(--border);
+    }
+
+    .timeline-dot {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--indigo-bg);
+      border: 2px solid var(--indigo);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 12px;
+      color: var(--indigo);
+      font-weight: 700;
+    }
+
+    .timeline-dot.system { background: #f1f5f9; border-color: #cbd5e1; color: #64748b; }
+    .timeline-dot.email { background: #eff6ff; border-color: #3b82f6; color: #3b82f6; }
+
+    .timeline-content { flex: 1; padding-top: 4px; }
+    .timeline-title { font-weight: 600; font-size: 13px; }
+    .timeline-desc { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .timeline-time { font-size: 11px; color: var(--text-light); margin-top: 4px; }
+
+    /* ── Email Tab ── */
+    .email-layout {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      height: calc(100vh - var(--topbar-h) - 160px);
+    }
+
+    .email-thread {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .email-message {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+
+    .email-message.inbound { border-left: 3px solid var(--indigo); }
+    .email-message.outbound { border-left: 3px solid #94a3b8; }
+
+    .email-msg-header {
+      padding: 12px 16px;
+      background: #fafbfc;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .email-from { font-weight: 600; font-size: 13px; }
+    .email-date { font-size: 12px; color: var(--text-muted); }
+    .email-subject-line { font-size: 12px; color: var(--text-muted); padding: 0 16px 4px; }
+    .email-body { padding: 14px 16px; font-size: 13px; line-height: 1.6; color: #334155; }
+
+    .compose-area {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .compose-toolbar {
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      background: #fafbfc;
+    }
+
+    .compose-toolbar .field-label { margin-right: 4px; }
+    .compose-to {
+      flex: 1;
+      border: none;
+      background: transparent;
+      font-size: 13px;
+      outline: none;
+      color: var(--text);
+    }
+
+    .compose-body {
+      width: 100%;
+      min-height: 100px;
+      border: none;
+      padding: 14px 16px;
+      font-size: 13px;
+      font-family: inherit;
+      resize: vertical;
+      outline: none;
+      color: var(--text);
+    }
+
+    .compose-footer {
+      padding: 10px 16px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    /* ── Chat Tab ── */
+    .chat-layout {
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - var(--topbar-h) - 160px);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+
+    .chat-header-bar {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #fafbfc;
+    }
+
+    .chat-session-info { font-size: 13px; }
+    .chat-session-info strong { font-weight: 600; }
+
+    .chat-status-live {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: var(--success-bg);
+      color: var(--success);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .chat-status-live::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--success);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: .4; }
+    }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: #f8fafc;
+    }
+
+    .chat-bubble {
+      max-width: 75%;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .chat-bubble.customer {
+      align-self: flex-start;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-bottom-left-radius: 4px;
+    }
+
+    .chat-bubble.bot {
+      align-self: flex-start;
+      background: #f0f0ff;
+      border: 1px solid #c7d2fe;
+      border-bottom-left-radius: 4px;
+    }
+
+    .chat-bubble.agent {
+      align-self: flex-end;
+      background: var(--indigo);
+      color: #fff;
+      border-bottom-right-radius: 4px;
+    }
+
+    .chat-bubble.system-msg {
+      align-self: center;
+      background: #fef3c7;
+      border: 1px solid #fde68a;
+      color: #92400e;
+      font-size: 12px;
+      font-weight: 500;
+      max-width: 90%;
+      text-align: center;
+      border-radius: 8px;
+    }
+
+    .chat-sender {
+      font-size: 11px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: var(--text-muted);
+    }
+
+    .chat-bubble.agent .chat-sender { color: rgba(255,255,255,.7); }
+
+    .chat-time {
+      font-size: 10px;
+      color: var(--text-light);
+      margin-top: 4px;
+    }
+
+    .chat-bubble.agent .chat-time { color: rgba(255,255,255,.6); }
+
+    .chat-input-bar {
+      padding: 12px 16px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 10px;
+      background: var(--surface);
+    }
+
+    .chat-input {
+      flex: 1;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 13px;
+      outline: none;
+      font-family: inherit;
+    }
+
+    .chat-input:focus { border-color: var(--indigo); box-shadow: 0 0 0 3px rgba(79,70,229,.1); }
+
+    /* ── Knowledge Tab ── */
+    .knowledge-search {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .knowledge-search input {
+      flex: 1;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 13px;
+      outline: none;
+    }
+
+    .knowledge-search input:focus {
+      border-color: var(--indigo);
+      box-shadow: 0 0 0 3px rgba(79,70,229,.1);
+    }
+
+    .article-list { display: flex; flex-direction: column; gap: 8px; }
+
+    .article-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      cursor: pointer;
+      transition: border-color .15s;
+    }
+
+    .article-item:hover { border-color: var(--indigo-light); }
+    .article-item.expanded { border-color: var(--indigo); }
+
+    .article-item-header {
+      padding: 14px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .article-title { font-weight: 600; font-size: 13px; }
+    .article-meta { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+    .article-chevron {
+      color: var(--text-light);
+      transition: transform .2s;
+      font-size: 12px;
+    }
+
+    .article-item.expanded .article-chevron { transform: rotate(180deg); }
+
+    .article-content {
+      display: none;
+      padding: 0 16px 16px;
+      font-size: 13px;
+      line-height: 1.6;
+      color: #334155;
+      border-top: 1px solid var(--border);
+      padding-top: 14px;
+    }
+
+    .article-item.expanded .article-content { display: block; }
+
+    .article-content h4 { font-size: 13px; margin: 12px 0 6px; color: var(--text); }
+    .article-content ul { margin-left: 18px; margin-bottom: 8px; }
+    .article-content li { margin-bottom: 4px; }
+
+    /* ── AI Panel ── */
+    .ai-panel {
+      width: var(--ai-panel-w);
+      background: var(--surface);
+      border-left: 1px solid var(--border);
+      overflow-y: auto;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .ai-panel-header {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      font-weight: 700;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, var(--indigo-bg) 0%, #faf5ff 100%);
+      color: var(--indigo-dark);
+    }
+
+    .ai-panel-header .ai-badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: var(--indigo);
+      color: #fff;
+      letter-spacing: .05em;
+    }
+
+    .ai-section {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .ai-section-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: var(--text-light);
+      margin-bottom: 8px;
+    }
+
+    .ai-summary {
+      font-size: 13px;
+      line-height: 1.6;
+      color: #334155;
+    }
+
+    .ai-tag {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: var(--indigo-bg);
+      color: var(--indigo);
+      font-size: 12px;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+
+    .ai-action-card {
+      padding: 10px 12px;
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: var(--radius);
+      font-size: 12px;
+      color: #166534;
+      line-height: 1.5;
+    }
+
+    .prior-case {
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+    }
+
+    .prior-case:last-child { border-bottom: none; }
+    .prior-case-id { font-weight: 600; color: var(--indigo); }
+    .prior-case-desc { color: var(--text-muted); margin-top: 2px; }
+
+    .draft-response {
+      background: #fafbfc;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px;
+      font-size: 12px;
+      line-height: 1.6;
+      color: #334155;
+      max-height: 160px;
+      overflow-y: auto;
+    }
+
+    .ai-draft-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .btn-sm {
+      padding: 5px 12px;
+      font-size: 12px;
+    }
+
+    /* ── Omni Widget ── */
+    .omni-fab {
+      position: fixed;
+      bottom: 24px;
+      right: calc(var(--ai-panel-w) + 24px);
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--indigo);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      box-shadow: var(--shadow-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      z-index: 200;
+      transition: transform .15s, box-shadow .15s;
+    }
+
+    .omni-fab:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 20px rgba(79,70,229,.35);
+    }
+
+    .omni-badge {
+      position: absolute;
+      top: -2px;
+      right: -2px;
+      min-width: 20px;
+      height: 20px;
+      border-radius: 999px;
+      background: var(--danger);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #fff;
+    }
+
+    .omni-panel {
+      position: fixed;
+      bottom: 92px;
+      right: calc(var(--ai-panel-w) + 24px);
+      width: 360px;
+      max-height: 480px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      z-index: 199;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .omni-panel.open { display: flex; }
+
+    .omni-panel-header {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      font-weight: 700;
+      font-size: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #fafbfc;
+    }
+
+    .omni-close {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-muted);
+      font-size: 18px;
+      line-height: 1;
+      padding: 4px;
+    }
+
+    .omni-close:hover { color: var(--text); }
+
+    .omni-items { overflow-y: auto; flex: 1; }
+
+    .omni-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      transition: background .1s;
+    }
+
+    .omni-item:hover { background: var(--indigo-bg); }
+    .omni-item.active { background: var(--indigo-bg); border-left: 3px solid var(--indigo); }
+
+    .omni-item-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .omni-item-icon.email { background: #eff6ff; }
+    .omni-item-icon.chat { background: #f0fdf4; }
+    .omni-item-icon.msg { background: #fef3c7; }
+    .omni-item-icon.case { background: var(--indigo-bg); }
+
+    .omni-item-info { flex: 1; min-width: 0; }
+    .omni-item-title { font-weight: 600; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .omni-item-sub { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+
+    .omni-item-time {
+      font-size: 11px;
+      color: var(--text-light);
+      flex-shrink: 0;
+    }
+
+    .omni-item-wait {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--warning);
+      background: var(--warning-bg);
+      padding: 2px 6px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+
+    /* ── Modals ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15,23,42,.5);
+      z-index: 300;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(2px);
+    }
+
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 20px 60px rgba(0,0,0,.2);
+      width: 520px;
+      max-width: 90vw;
+      max-height: 85vh;
+      overflow-y: auto;
+      animation: modalIn .2s ease;
+    }
+
+    @keyframes modalIn {
+      from { opacity: 0; transform: translateY(12px) scale(.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .modal-header {
+      padding: 18px 24px 14px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-title { font-size: 16px; font-weight: 700; }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 22px;
+      color: var(--text-muted);
+      cursor: pointer;
+      line-height: 1;
+      padding: 4px;
+    }
+
+    .modal-close:hover { color: var(--text); }
+
+    .modal-body { padding: 20px 24px; }
+
+    .modal-footer {
+      padding: 14px 24px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      background: #fafbfc;
+      border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    }
+
+    .form-group { margin-bottom: 16px; }
+    .form-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .form-input, .form-select, .form-textarea {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-family: inherit;
+      outline: none;
+      color: var(--text);
+    }
+
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      border-color: var(--indigo);
+      box-shadow: 0 0 0 3px rgba(79,70,229,.1);
+    }
+
+    .form-textarea { min-height: 100px; resize: vertical; }
+
+    .radio-group { display: flex; flex-direction: column; gap: 10px; }
+
+    .radio-option {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: border-color .15s;
+    }
+
+    .radio-option:hover { border-color: var(--indigo-light); }
+    .radio-option.selected { border-color: var(--indigo); background: var(--indigo-bg); }
+
+    .radio-option input { margin-top: 2px; accent-color: var(--indigo); }
+    .radio-option-label { font-weight: 600; font-size: 13px; }
+    .radio-option-desc { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+    .verification-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: var(--success-bg);
+      color: var(--success);
+      font-size: 11px;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Bar -->
+  <header class="topbar">
+    <div class="logo">
+      <div class="logo-mark">A</div>
+      <div>
+        Affirm Agent CRM
+        <span class="logo-sub">Customer Experience Platform</span>
+      </div>
+    </div>
+    <div class="search-wrap">
+      <span class="search-icon">&#128269;</span>
+      <input type="text" placeholder="Search customers by name, email, phone, or ARI...">
+    </div>
+    <div class="topbar-right">
+      <div class="presence-select">
+        <span class="presence-dot"></span>
+        <select id="presenceSelect">
+          <option value="available-email" selected>Available - Email</option>
+          <option value="available-chat">Available - Chat</option>
+          <option value="available-all">Available - All Channels</option>
+          <option value="busy">Busy</option>
+          <option value="away">Away</option>
+          <option value="offline">Offline</option>
+        </select>
+      </div>
+      <div class="agent-info">
+        <div>
+          <div class="agent-name">Sarah Chen</div>
+          <div class="agent-role">Senior Support Agent</div>
+        </div>
+        <div class="agent-avatar">SC</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="app-layout">
+
+    <!-- Left Sidebar -->
+    <nav class="sidebar">
+      <div class="nav-icon active" title="Cases">
+        <svg viewBox="0 0 24 24"><path d="M20 6h-8l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V6h5.2l2 2H20v10z"/></svg>
+      </div>
+      <div class="nav-icon" title="Customers">
+        <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+      </div>
+      <div class="nav-icon" title="Knowledge">
+        <svg viewBox="0 0 24 24"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg>
+      </div>
+      <div class="nav-icon" title="Reports">
+        <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+      </div>
+      <div class="nav-spacer"></div>
+      <div class="nav-icon" title="Settings">
+        <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+      </div>
+    </nav>
+
+    <!-- Main Area -->
+    <div class="main-area">
+
+      <!-- Case Header -->
+      <div class="case-header">
+        <div class="case-header-top">
+          <div>
+            <div class="case-title">Case #00847291</div>
+            <div class="case-badges">
+              <span class="badge badge-status">In Progress</span>
+              <span class="badge badge-channel">Email</span>
+              <span class="badge badge-priority">Normal</span>
+            </div>
+            <div class="case-meta">Opened Sep 20, 2026 at 2:14 PM PST &middot; Last updated 18 min ago &middot; SLA: 4h 22m remaining</div>
+          </div>
+          <div class="case-header-actions">
+            <button class="btn" onclick="openModal('modal-reassign')">Reassign</button>
+            <button class="btn btn-primary" onclick="openModal('modal-resolve')">Resolve</button>
+          </div>
+        </div>
+        <div class="tabs" id="tabBar">
+          <div class="tab active" data-tab="case">Case</div>
+          <div class="tab" data-tab="email">Email <span class="tab-count">3</span></div>
+          <div class="tab" data-tab="chat">Chat</div>
+          <div class="tab" data-tab="knowledge">Knowledge</div>
+        </div>
+      </div>
+
+      <!-- Tab Content -->
+      <div class="content-scroll">
+
+        <!-- CASE TAB -->
+        <div class="tab-panel active" id="panel-case">
+          <div class="cards-grid">
+
+            <!-- Case Details -->
+            <div class="card">
+              <div class="card-header">Case Details</div>
+              <div class="card-body">
+                <div class="field-grid">
+                  <div class="field">
+                    <span class="field-label">Case Number</span>
+                    <span class="field-value">00847291</span>
+                  </div>
+                  <div class="field">
+                    <span class="field-label">Status</span>
+                    <span class="field-value">In Progress</span>
+                  </div>
+                  <div class="field">
+                    <span class="field-label">Channel</span>
+                    <span class="field-value">Email</span>
+                  </div>
+                  <div class="field">
+                    <span class="field-label">Case Name</span>
+                    <span class="field-value">Payment</span>
+                  </div>
+                  <div class="field">
+                    <span class="field-label">Classification</span>
+                    <span class="field-value">Refund Request</span>
+                  </div>
+                  <div class="field">
+                    <span class="field-label">Product</span>
+                    <span class="field-value">Installment Loan</span>
+                  </div>
+                  <div class="field">
+                    <span class="field-label">Brand</span>
+                    <span class="field-value">Affirm</span>
+                  </div>
+                  <div class="field">
+                    <span class="field-label">Region</span>
+                    <span class="field-value">US</span>
+                  </div>
+                  <div class="field">
+                    <span class="field-label">Owner</span>
+                    <span class="field-value link">Sarah Chen</span>
+                  </div>
+                  <div class="field">
+                    <span class="field-label">Queue</span>
+                    <span class="field-value">US Email Support</span>
+                  </div>
+                  <div class="field">
+                    <span class="field-label">Priority</span>
+                    <span class="field-value">Normal</span>
+                  </div>
+                  <div class="field" style="grid-column: 1 / -1;">
+                    <span class="field-label">Subject</span>
+                    <span class="field-value">Refund request for Wayfair order ORD-928471 - partial return</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Customer Details -->
+            <div class="card">
+              <div class="card-header">Customer Details</div>
+              <div class="card-body">
+                <div class="field-grid">
+                  <div class="field">
+                    <span class="field-label">Name</span>
+                    <span class="field-value link">Marcus Johnson</span>
+                  </div>
+                  <div class="field">
+                    <span class="field-label">Email</span>
+                    <span class="field-value">marcus.johnson@email.com</span>
+                  </div>
+                  <div class="field">
+                    <span class="field-label">Phone</span>
+                    <span class="field-value">(415) 555-0192</span>
+                  </div>
+                  <div class="field">
+                    <span class="field-label">ARI</span>
+                    <span class="field-value">ARI-US-7X4K9M2P</span>
+                  </div>
+                  <div class="field">
+                    <span class="field-label">Account Status</span>
+                    <span class="field-value">Active</span>
+                  </div>
+                  <div class="field">
+                    <span class="field-label">Verification</span>
+                    <span class="field-value"><span class="verification-badge">Verified</span></span>
+                  </div>
+                </div>
+                <div class="loan-card">
+                  <div class="loan-card-header">
+                    <div>
+                      <div class="loan-merchant">Wayfair</div>
+                      <div class="loan-meta">Order ORD-928471 &middot; 6 payments remaining</div>
+                    </div>
+                    <div class="loan-amount">$847.50</div>
+                  </div>
+                  <span class="loan-status">Current</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Agent Actions -->
+            <div class="card card-full">
+              <div class="card-header">Agent Actions</div>
+              <div class="card-body">
+                <div class="action-buttons">
+                  <button class="btn-action" onclick="openModal('modal-resolve')">
+                    <div class="btn-action-title">Resolve Query</div>
+                    <div class="btn-action-desc">Close case with resolution code and notes</div>
+                  </button>
+                  <button class="btn-action" onclick="openModal('modal-reassign')">
+                    <div class="btn-action-title">Reassign</div>
+                    <div class="btn-action-desc">Transfer to another agent or queue</div>
+                  </button>
+                  <button class="btn-action" onclick="openModal('modal-communicate')">
+                    <div class="btn-action-title">Send Communication</div>
+                    <div class="btn-action-desc">Email reply or secure message to customer</div>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Activity Timeline -->
+            <div class="card card-full">
+              <div class="card-header">Activity Timeline</div>
+              <div class="card-body">
+                <ul class="timeline">
+                  <li class="timeline-item">
+                    <div class="timeline-dot email">E</div>
+                    <div class="timeline-content">
+                      <div class="timeline-title">Customer email received</div>
+                      <div class="timeline-desc">Marcus Johnson sent follow-up regarding partial refund for returned items from Wayfair order ORD-928471.</div>
+                      <div class="timeline-time">Today, 2:14 PM PST</div>
+                    </div>
+                  </li>
+                  <li class="timeline-item">
+                    <div class="timeline-dot system">S</div>
+                    <div class="timeline-content">
+                      <div class="timeline-title">Case auto-classified</div>
+                      <div class="timeline-desc">AI triage classified as Refund Request / Payment with 94% confidence. Routed to US Email Support queue.</div>
+                      <div class="timeline-time">Today, 2:14 PM PST</div>
+                    </div>
+                  </li>
+                  <li class="timeline-item">
+                    <div class="timeline-dot">A</div>
+                    <div class="timeline-content">
+                      <div class="timeline-title">Case assigned to Sarah Chen</div>
+                      <div class="timeline-desc">Auto-assigned based on queue availability and skill match (Refunds, US region).</div>
+                      <div class="timeline-time">Today, 2:16 PM PST</div>
+                    </div>
+                  </li>
+                  <li class="timeline-item">
+                    <div class="timeline-dot email">E</div>
+                    <div class="timeline-content">
+                      <div class="timeline-title">Prior email thread</div>
+                      <div class="timeline-desc">2 earlier emails in thread — initial refund inquiry (Sep 18) and merchant return confirmation (Sep 19).</div>
+                      <div class="timeline-time">Sep 18–19, 2026</div>
+                    </div>
+                  </li>
+                  <li class="timeline-item">
+                    <div class="timeline-dot system">S</div>
+                    <div class="timeline-content">
+                      <div class="timeline-title">Case created</div>
+                      <div class="timeline-desc">Inbound email case created from support@affirm.com mailbox.</div>
+                      <div class="timeline-time">Sep 18, 2026 at 9:42 AM PST</div>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- EMAIL TAB -->
+        <div class="tab-panel" id="panel-email">
+          <div class="email-layout">
+            <div class="email-thread">
+              <div class="email-message inbound">
+                <div class="email-msg-header">
+                  <span class="email-from">Marcus Johnson &lt;marcus.johnson@email.com&gt;</span>
+                  <span class="email-date">Sep 18, 2026 9:42 AM</span>
+                </div>
+                <div class="email-subject-line">Subject: Refund for Wayfair order ORD-928471</div>
+                <div class="email-body">
+                  Hi,<br><br>
+                  I recently returned two items from my Wayfair order (ORD-928471) and received confirmation from Wayfair that the return was processed. However, I haven't seen the refund reflected on my Affirm loan balance. The items totaled approximately $312.00.<br><br>
+                  Can you help me understand when the refund will be applied?<br><br>
+                  Thanks,<br>
+                  Marcus Johnson
+                </div>
+              </div>
+              <div class="email-message outbound">
+                <div class="email-msg-header">
+                  <span class="email-from">Affirm Support &lt;support@affirm.com&gt;</span>
+                  <span class="email-date">Sep 19, 2026 11:15 AM</span>
+                </div>
+                <div class="email-subject-line">Re: Refund for Wayfair order ORD-928471</div>
+                <div class="email-body">
+                  Hi Marcus,<br><br>
+                  Thank you for reaching out. We've received your inquiry and are reviewing the return details with Wayfair. Refunds from merchant returns typically take 5–10 business days to process once we receive confirmation from the merchant.<br><br>
+                  We'll follow up once we have an update on your refund status.<br><br>
+                  Best,<br>
+                  Affirm Support
+                </div>
+              </div>
+              <div class="email-message inbound">
+                <div class="email-msg-header">
+                  <span class="email-from">Marcus Johnson &lt;marcus.johnson@email.com&gt;</span>
+                  <span class="email-date">Today 2:14 PM</span>
+                </div>
+                <div class="email-subject-line">Re: Refund for Wayfair order ORD-928471</div>
+                <div class="email-body">
+                  Hi again,<br><br>
+                  It's been over a week since Wayfair confirmed the return. I checked my Affirm account and the loan balance is still $847.50 with no adjustment. I have the return receipt from Wayfair (RMA #WF-48291) showing the $312.00 credit.<br><br>
+                  Can someone please look into this urgently? I'd like the partial refund applied to reduce my remaining payments.<br><br>
+                  Marcus
+                </div>
+              </div>
+            </div>
+            <div class="compose-area">
+              <div class="compose-toolbar">
+                <span class="field-label">To:</span>
+                <input class="compose-to" type="text" value="marcus.johnson@email.com" readonly>
+              </div>
+              <textarea class="compose-body" placeholder="Type your reply..."></textarea>
+              <div class="compose-footer">
+                <button class="btn">Save Draft</button>
+                <button class="btn btn-primary">Send Reply</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CHAT TAB -->
+        <div class="tab-panel" id="panel-chat">
+          <div class="chat-layout">
+            <div class="chat-header-bar">
+              <div class="chat-session-info">
+                <strong>Live Chat</strong> &middot; Session #CH-29184 &middot; Marcus Johnson
+              </div>
+              <span class="chat-status-live">Active</span>
+            </div>
+            <div class="chat-messages">
+              <div class="chat-bubble customer">
+                <div class="chat-sender">Marcus Johnson</div>
+                Hi, I need help with a refund on my Wayfair order. I returned items but my loan balance hasn't changed.
+                <div class="chat-time">2:08 PM</div>
+              </div>
+              <div class="chat-bubble bot">
+                <div class="chat-sender">Decagon AI</div>
+                I understand you're looking for a refund on your Wayfair order. Let me check your account details. I can see you have an active loan for order ORD-928471 with a balance of $847.50. Could you confirm the return confirmation number from Wayfair?
+                <div class="chat-time">2:08 PM</div>
+              </div>
+              <div class="chat-bubble customer">
+                <div class="chat-sender">Marcus Johnson</div>
+                Yes, the RMA number is WF-48291. Wayfair said the return was processed on Sep 15.
+                <div class="chat-time">2:09 PM</div>
+              </div>
+              <div class="chat-bubble bot">
+                <div class="chat-sender">Decagon AI</div>
+                Thank you. I've located the return record. This case involves a partial refund of $312.00 that requires agent review to apply to your loan. I'm connecting you with a support specialist who can process this for you.
+                <div class="chat-time">2:10 PM</div>
+              </div>
+              <div class="chat-bubble system-msg">
+                Decagon AI escalated to agent &middot; Sarah Chen accepted chat at 2:11 PM
+              </div>
+              <div class="chat-bubble agent">
+                <div class="chat-sender">Sarah Chen (You)</div>
+                Hi Marcus, I'm Sarah and I'll be helping you today. I can see your refund case and the Wayfair return details. Let me review the merchant credit and get this applied to your loan.
+                <div class="chat-time">2:11 PM</div>
+              </div>
+              <div class="chat-bubble customer">
+                <div class="chat-sender">Marcus Johnson</div>
+                Thank you! I also sent an email about this earlier today if that helps.
+                <div class="chat-time">2:12 PM</div>
+              </div>
+            </div>
+            <div class="chat-input-bar">
+              <input class="chat-input" type="text" placeholder="Type a message...">
+              <button class="btn btn-primary">Send</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- KNOWLEDGE TAB -->
+        <div class="tab-panel" id="panel-knowledge">
+          <div class="knowledge-search">
+            <input type="text" placeholder="Search knowledge articles..." value="refund partial return">
+            <button class="btn btn-primary">Search</button>
+          </div>
+          <div class="article-list">
+            <div class="article-item expanded" onclick="toggleArticle(this)">
+              <div class="article-item-header">
+                <div>
+                  <div class="article-title">Processing Partial Refunds for Merchant Returns</div>
+                  <div class="article-meta">Payments &middot; Updated Aug 2026 &middot; 94% helpful</div>
+                </div>
+                <span class="article-chevron">&#9660;</span>
+              </div>
+              <div class="article-content">
+                <p>When a customer returns part of an order financed through Affirm, the merchant processes the return and notifies Affirm of the credit amount. This guide covers how to verify and apply partial refunds to the customer's loan.</p>
+                <h4>Verification Steps</h4>
+                <ul>
+                  <li>Confirm the merchant return in the loan servicing system using the order ID and RMA number</li>
+                  <li>Verify the return amount matches the merchant credit notification</li>
+                  <li>Check that the return was processed within the eligible return window (typically 30 days)</li>
+                  <li>Ensure the customer's identity is verified before applying credits</li>
+                </ul>
+                <h4>Applying the Refund</h4>
+                <ul>
+                  <li>Navigate to the loan detail page and select "Apply Merchant Credit"</li>
+                  <li>Enter the credit amount and link to the merchant return confirmation</li>
+                  <li>The system will recalculate remaining payments proportionally</li>
+                  <li>Send confirmation to the customer via email or secure message</li>
+                </ul>
+                <h4>Timeline Expectations</h4>
+                <p>Merchant returns typically take 5–10 business days from return confirmation to credit posting. If the return was confirmed more than 10 business days ago and no credit is visible, escalate to Loan Servicing.</p>
+              </div>
+            </div>
+            <div class="article-item" onclick="toggleArticle(this)">
+              <div class="article-item-header">
+                <div>
+                  <div class="article-title">Wayfair Merchant Return Policy &amp; Affirm Integration</div>
+                  <div class="article-meta">Merchants &middot; Updated Jul 2026 &middot; 88% helpful</div>
+                </div>
+                <span class="article-chevron">&#9660;</span>
+              </div>
+              <div class="article-content">
+                <p>Wayfair processes returns through their standard RMA workflow. Affirm receives automated credit notifications via the MuleSoft integration, typically within 3–5 business days of the merchant processing the return.</p>
+                <h4>Common Issues</h4>
+                <ul>
+                  <li>Delayed merchant notification — check MuleSoft logs for pending credits</li>
+                  <li>Partial vs. full return mismatch — verify item-level return details</li>
+                  <li>Customer returned items to wrong address — requires merchant confirmation</li>
+                </ul>
+              </div>
+            </div>
+            <div class="article-item" onclick="toggleArticle(this)">
+              <div class="article-item-header">
+                <div>
+                  <div class="article-title">Loan Balance Adjustments After Refund</div>
+                  <div class="article-meta">Payments &middot; Updated Sep 2026 &middot; 91% helpful</div>
+                </div>
+                <span class="article-chevron">&#9660;</span>
+              </div>
+              <div class="article-content">
+                <p>After a merchant credit is applied, the loan servicing system automatically recalculates the payment schedule. The customer will see updated remaining payments in their Affirm app within 24 hours.</p>
+              </div>
+            </div>
+            <div class="article-item" onclick="toggleArticle(this)">
+              <div class="article-item-header">
+                <div>
+                  <div class="article-title">Escalation: Refund Not Received After 10 Business Days</div>
+                  <div class="article-meta">Escalations &middot; Updated Jun 2026 &middot; 82% helpful</div>
+                </div>
+                <span class="article-chevron">&#9660;</span>
+              </div>
+              <div class="article-content">
+                <p>If a merchant return was confirmed more than 10 business days ago and no credit has posted, create an escalation ticket to Loan Servicing with the order ID, RMA number, and merchant return confirmation screenshot.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- AI Panel -->
+    <aside class="ai-panel">
+      <div class="ai-panel-header">
+        <span class="ai-badge">AI</span>
+        Agent Assist
+      </div>
+
+      <div class="ai-section">
+        <div class="ai-section-title">Triage Summary</div>
+        <p class="ai-summary">Customer requesting partial refund ($312.00) for returned Wayfair items on loan ORD-928471. Merchant return confirmed Sep 15 (RMA WF-48291) but credit not yet applied to $847.50 loan balance. Customer contacted via email and chat.</p>
+      </div>
+
+      <div class="ai-section">
+        <div class="ai-section-title">Suggested Classification</div>
+        <span class="ai-tag">Refund Request</span>
+        <span class="ai-tag" style="margin-left: 6px;">Payment</span>
+        <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px;">Confidence: 94%</div>
+      </div>
+
+      <div class="ai-section">
+        <div class="ai-section-title">Recommended Action</div>
+        <div class="ai-action-card">
+          Verify merchant return credit in loan servicing system. If confirmed, apply $312.00 partial refund to loan ORD-928471 and notify customer of updated payment schedule.
+        </div>
+      </div>
+
+      <div class="ai-section">
+        <div class="ai-section-title">Prior Cases</div>
+        <div class="prior-case">
+          <span class="prior-case-id">#00791234</span> &middot; Sep 2026
+          <div class="prior-case-desc">Payment plan modification — resolved</div>
+        </div>
+        <div class="prior-case">
+          <span class="prior-case-id">#00684521</span> &middot; Jun 2026
+          <div class="prior-case-desc">Account verification — resolved</div>
+        </div>
+      </div>
+
+      <div class="ai-section">
+        <div class="ai-section-title">Draft Response</div>
+        <div class="draft-response">Hi Marcus,
+
+Thank you for your patience. I've reviewed your Wayfair return (RMA #WF-48291) and confirmed the $312.00 merchant credit. I'm processing the partial refund to your loan now.
+
+Your updated balance will be $535.50, and your remaining payments will be recalculated accordingly. You should see the update in your Affirm app within 24 hours.
+
+Please let me know if you have any other questions.
+
+Best,
+Sarah</div>
+        <div class="ai-draft-actions">
+          <button class="btn btn-sm btn-primary">Use in Reply</button>
+          <button class="btn btn-sm">Edit</button>
+        </div>
+      </div>
+    </aside>
+
+  </div>
+
+  <!-- Omni Widget -->
+  <button class="omni-fab" id="omniFab" onclick="toggleOmni()" title="Work items">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="#fff"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+    <span class="omni-badge">4</span>
+  </button>
+
+  <div class="omni-panel" id="omniPanel">
+    <div class="omni-panel-header">
+      Work Items
+      <button class="omni-close" onclick="toggleOmni()">&times;</button>
+    </div>
+    <div class="omni-items">
+      <div class="omni-item active">
+        <div class="omni-item-icon email">&#9993;</div>
+        <div class="omni-item-info">
+          <div class="omni-item-title">Case #00847291 — Refund request</div>
+          <div class="omni-item-sub">Marcus Johnson &middot; Email</div>
+        </div>
+        <span class="omni-item-time">18m</span>
+      </div>
+      <div class="omni-item">
+        <div class="omni-item-icon chat">&#128172;</div>
+        <div class="omni-item-info">
+          <div class="omni-item-title">Chat #CH-29184 — Refund inquiry</div>
+          <div class="omni-item-sub">Marcus Johnson &middot; Live</div>
+        </div>
+        <span class="omni-item-wait">Active</span>
+      </div>
+      <div class="omni-item">
+        <div class="omni-item-icon msg">&#128274;</div>
+        <div class="omni-item-info">
+          <div class="omni-item-title">Secure Message — Payment question</div>
+          <div class="omni-item-sub">Diana Reyes &middot; Secure Msg</div>
+        </div>
+        <span class="omni-item-time">32m</span>
+      </div>
+      <div class="omni-item">
+        <div class="omni-item-icon case">&#128196;</div>
+        <div class="omni-item-info">
+          <div class="omni-item-title">Case #00847103 — Dispute follow-up</div>
+          <div class="omni-item-sub">James Park &middot; Email</div>
+        </div>
+        <span class="omni-item-time">1h</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Resolve -->
+  <div class="modal-overlay" id="modal-resolve">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title">Resolve Query</span>
+        <button class="modal-close" onclick="closeModal('modal-resolve')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Resolution Code</label>
+          <select class="form-select">
+            <option>Refund Processed</option>
+            <option>Information Provided</option>
+            <option>Escalated to Specialist</option>
+            <option>Duplicate Case</option>
+            <option>No Action Required</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Resolution Notes</label>
+          <textarea class="form-textarea" placeholder="Describe how the case was resolved...">Applied $312.00 partial merchant credit to loan ORD-928471. Updated balance: $535.50. Customer notified via email.</textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Send confirmation to customer?</label>
+          <select class="form-select">
+            <option>Yes — Email</option>
+            <option>Yes — Secure Message</option>
+            <option>No</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closeModal('modal-resolve')">Cancel</button>
+        <button class="btn btn-primary" onclick="closeModal('modal-resolve')">Resolve Case</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Reassign -->
+  <div class="modal-overlay" id="modal-reassign">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title">Reassign Case</span>
+        <button class="modal-close" onclick="closeModal('modal-reassign')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Reassign To</label>
+          <select class="form-select">
+            <option>Agent — Select agent...</option>
+            <option>James Park</option>
+            <option>Alex Rivera</option>
+            <option>Priya Sharma</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Or Queue</label>
+          <select class="form-select">
+            <option>US Email Support</option>
+            <option>US Chat Support</option>
+            <option>Loan Servicing Escalations</option>
+            <option>US Supervisor Queue</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Reason</label>
+          <textarea class="form-textarea" placeholder="Why is this case being reassigned?"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closeModal('modal-reassign')">Cancel</button>
+        <button class="btn btn-primary" onclick="closeModal('modal-reassign')">Reassign</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Send Communication -->
+  <div class="modal-overlay" id="modal-communicate">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title">Send Communication</span>
+        <button class="modal-close" onclick="closeModal('modal-communicate')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Communication Type</label>
+          <div class="radio-group">
+            <label class="radio-option selected" onclick="selectRadio(this)">
+              <input type="radio" name="commType" value="email" checked>
+              <div>
+                <div class="radio-option-label">Email Reply</div>
+                <div class="radio-option-desc">Send an email reply to marcus.johnson@email.com</div>
+              </div>
+            </label>
+            <label class="radio-option" onclick="selectRadio(this)">
+              <input type="radio" name="commType" value="secure">
+              <div>
+                <div class="radio-option-label">Secure Message</div>
+                <div class="radio-option-desc">Send via Affirm secure messaging in the customer app</div>
+              </div>
+            </label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Subject</label>
+          <input class="form-input" type="text" value="Re: Refund for Wayfair order ORD-928471">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Message</label>
+          <textarea class="form-textarea">Hi Marcus,
+
+Thank you for your patience. I've reviewed your Wayfair return (RMA #WF-48291) and confirmed the $312.00 merchant credit. I'm processing the partial refund to your loan now.
+
+Your updated balance will be $535.50, and your remaining payments will be recalculated accordingly. You should see the update in your Affirm app within 24 hours.
+
+Please let me know if you have any other questions.
+
+Best,
+Sarah</textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closeModal('modal-communicate')">Cancel</button>
+        <button class="btn">Save Draft</button>
+        <button class="btn btn-primary" onclick="closeModal('modal-communicate')">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Tab switching
+    document.getElementById('tabBar').addEventListener('click', function(e) {
+      const tab = e.target.closest('.tab');
+      if (!tab) return;
+      const tabId = tab.dataset.tab;
+
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('panel-' + tabId).classList.add('active');
+    });
+
+    // Omni panel toggle
+    function toggleOmni() {
+      document.getElementById('omniPanel').classList.toggle('open');
+    }
+
+    // Modals
+    function openModal(id) {
+      document.getElementById(id).classList.add('open');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('open');
+    }
+
+    // Close modal on overlay click
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+      overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) {
+          overlay.classList.remove('open');
+        }
+      });
+    });
+
+    // Close modal on Escape
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
+        document.getElementById('omniPanel').classList.remove('open');
+      }
+    });
+
+    // Knowledge article expand/collapse
+    function toggleArticle(el) {
+      el.classList.toggle('expanded');
+    }
+
+    // Radio option selection styling
+    function selectRadio(el) {
+      el.closest('.radio-group').querySelectorAll('.radio-option').forEach(o => o.classList.remove('selected'));
+      el.classList.add('selected');
+      el.querySelector('input').checked = true;
+    }
+
+    // Omni item click highlight
+    document.querySelectorAll('.omni-item').forEach(item => {
+      item.addEventListener('click', function() {
+        document.querySelectorAll('.omni-item').forEach(i => i.classList.remove('active'));
+        this.classList.add('active');
+      });
+    });
+  </script>
+
+</body>
+</html>
