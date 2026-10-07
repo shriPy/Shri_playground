@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>M&M&M — Meetings, Metrics & Merch</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f1419;
+      --surface: #1a2332;
+      --surface-2: #243044;
+      --accent: #4ade80;
+      --accent-dim: #22c55e;
+      --warning: #fbbf24;
+      --danger: #f87171;
+      --text: #e8edf4;
+      --muted: #8b9cb3;
+      --zoom-blue: #2d8cff;
+      --border: rgba(255, 255, 255, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Space Grotesk', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+
+    /* subtle grid background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(45, 140, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(45, 140, 255, 0.03) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(15, 20, 25, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .logo-mark {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, var(--zoom-blue), #6366f1);
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      font-size: 0.7rem;
+      letter-spacing: -0.5px;
+      line-height: 1.1;
+      text-align: center;
+      box-shadow: 0 4px 20px rgba(45, 140, 255, 0.3);
+    }
+
+    .logo-text h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .logo-text span {
+      font-size: 0.75rem;
+      color: var(--muted);
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .cart-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.6rem 1rem;
+      border-radius: 999px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .cart-btn:hover {
+      background: var(--surface-2);
+      border-color: rgba(74, 222, 128, 0.3);
+    }
+
+    .cart-count {
+      background: var(--accent);
+      color: #0f1419;
+      font-size: 0.75rem;
+      font-weight: 700;
+      min-width: 1.4rem;
+      height: 1.4rem;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      padding: 0 0.3rem;
+    }
+
+    main {
+      position: relative;
+      z-index: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 3rem 1rem 4rem;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(45, 140, 255, 0.12);
+      border: 1px solid rgba(45, 140, 255, 0.25);
+      color: #93c5fd;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.75rem;
+      padding: 0.4rem 0.9rem;
+      border-radius: 999px;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-badge .dot {
+      width: 8px;
+      height: 8px;
+      background: var(--danger);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .hero h2 {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      margin-bottom: 1rem;
+    }
+
+    .hero h2 em {
+      font-style: normal;
+      background: linear-gradient(90deg, var(--accent), var(--zoom-blue));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero p {
+      color: var(--muted);
+      font-size: 1.1rem;
+      max-width: 520px;
+      margin: 0 auto 2rem;
+    }
+
+    .hero-stats {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .hero-stats strong {
+      display: block;
+      color: var(--text);
+      font-size: 1.25rem;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    .products {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .product-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
+    }
+
+    .product-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      border-color: rgba(74, 222, 128, 0.2);
+    }
+
+    .product-card.featured {
+      border-color: rgba(251, 191, 36, 0.35);
+      grid-column: span 1;
+    }
+
+    .product-card.featured .product-badge {
+      background: var(--warning);
+      color: #0f1419;
+    }
+
+    .product-visual {
+      position: relative;
+      aspect-ratio: 1;
+      background: linear-gradient(160deg, #1e293b 0%, #0f172a 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .tshirt {
+      width: 75%;
+      max-width: 220px;
+      filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.4));
+    }
+
+    .tshirt-body {
+      fill: var(--shirt-color, #1e293b);
+    }
+
+    .tshirt-text {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 7px;
+      fill: #fff;
+      text-anchor: middle;
+      font-weight: 500;
+    }
+
+    .product-badge {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      background: var(--accent);
+      color: #0f1419;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0.3rem 0.6rem;
+      border-radius: 6px;
+    }
+
+    .product-info {
+      padding: 1.25rem;
+    }
+
+    .product-tag {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--zoom-blue);
+      margin-bottom: 0.4rem;
+    }
+
+    .product-info h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      line-height: 1.3;
+    }
+
+    .product-quote {
+      color: var(--muted);
+      font-size: 0.85rem;
+      font-style: italic;
+      margin-bottom: 1rem;
+      padding-left: 0.75rem;
+      border-left: 2px solid var(--border);
+    }
+
+    .product-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    .price {
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+
+    .price span {
+      font-size: 0.8rem;
+      color: var(--muted);
+      font-weight: 400;
+    }
+
+    .add-btn {
+      background: var(--accent);
+      color: #0f1419;
+      border: none;
+      padding: 0.65rem 1.1rem;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+      white-space: nowrap;
+    }
+
+    .add-btn:hover {
+      background: var(--accent-dim);
+      transform: scale(1.02);
+    }
+
+    .add-btn:active {
+      transform: scale(0.98);
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem 1.5rem;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.85rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    /* Cart drawer */
+    .cart-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 200;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s, visibility 0.3s;
+    }
+
+    .cart-overlay.open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .cart-drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: min(400px, 100vw);
+      height: 100vh;
+      background: var(--surface);
+      border-left: 1px solid var(--border);
+      z-index: 201;
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .cart-drawer.open {
+      transform: translateX(0);
+    }
+
+    .cart-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .cart-header h3 {
+      font-size: 1.1rem;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 1.5rem;
+      cursor: pointer;
+      line-height: 1;
+      padding: 0.25rem;
+    }
+
+    .close-btn:hover {
+      color: var(--text);
+    }
+
+    .cart-items {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem 1.5rem;
+    }
+
+    .cart-empty {
+      text-align: center;
+      color: var(--muted);
+      padding: 3rem 1rem;
+      font-style: italic;
+    }
+
+    .cart-item {
+      display: flex;
+      gap: 1rem;
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .cart-item-info {
+      flex: 1;
+    }
+
+    .cart-item-info h4 {
+      font-size: 0.9rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .cart-item-info .item-price {
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .qty-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .qty-btn {
+      width: 28px;
+      height: 28px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: var(--text);
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1rem;
+      display: grid;
+      place-items: center;
+    }
+
+    .qty-btn:hover {
+      border-color: var(--accent);
+    }
+
+    .remove-btn {
+      background: none;
+      border: none;
+      color: var(--danger);
+      font-size: 0.75rem;
+      cursor: pointer;
+      margin-top: 0.5rem;
+      padding: 0;
+    }
+
+    .cart-footer {
+      padding: 1.25rem 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .cart-total {
+      display: flex;
+      justify-content: space-between;
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .checkout-btn {
+      width: 100%;
+      background: var(--zoom-blue);
+      color: white;
+      border: none;
+      padding: 1rem;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .checkout-btn:hover {
+      opacity: 0.9;
+    }
+
+    .checkout-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--surface-2);
+      border: 1px solid var(--accent);
+      color: var(--text);
+      padding: 0.85rem 1.5rem;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      z-index: 300;
+      opacity: 0;
+      transition: transform 0.3s, opacity 0.3s;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    /* Checkout modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 400;
+      display: grid;
+      place-items: center;
+      padding: 1rem;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s, visibility 0.3s;
+    }
+
+    .modal-overlay.open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2rem;
+      max-width: 420px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .modal-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    .modal h3 {
+      font-size: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .modal p {
+      color: var(--muted);
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+    }
+
+    .modal-btn {
+      background: var(--accent);
+      color: #0f1419;
+      border: none;
+      padding: 0.85rem 2rem;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    @media (max-width: 600px) {
+      .hero-stats {
+        gap: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <a href="#" class="logo">
+        <div class="logo-mark">M&M&M</div>
+        <div class="logo-text">
+          <h1>M&M&M</h1>
+          <span>Meetings · Metrics · Merch</span>
+        </div>
+      </a>
+      <button class="cart-btn" id="cartToggle" aria-label="Open cart">
+        🛒 Cart
+        <span class="cart-count" id="cartCount">0</span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-badge">
+        <span class="dot"></span>
+        RECORDING IN PROGRESS
+      </div>
+      <h2>Wear the words you<br><em>mute yourself for</em></h2>
+      <p>Premium tees for people who've said "let's circle back" more times than they've said "I love you."</p>
+      <div class="hero-stats">
+        <div><strong>47min</strong> avg meeting</div>
+        <div><strong>0</strong> action items</div>
+        <div><strong>100%</strong> cotton irony</div>
+      </div>
+    </section>
+
+    <section class="products" id="products"></section>
+  </main>
+
+  <footer>
+    <p>M&M&M © 2026 — Not affiliated with any actual meeting platform.<br>
+    All phrases are fictional representations of things definitely never said on a call. <a href="#">Per my last email</a>.</p>
+  </footer>
+
+  <!-- Cart -->
+  <div class="cart-overlay" id="cartOverlay"></div>
+  <aside class="cart-drawer" id="cartDrawer" aria-label="Shopping cart">
+    <div class="cart-header">
+      <h3>Your Cart</h3>
+      <button class="close-btn" id="cartClose" aria-label="Close cart">&times;</button>
+    </div>
+    <div class="cart-items" id="cartItems">
+      <p class="cart-empty">Your cart is as empty as the action items from today's standup.</p>
+    </div>
+    <div class="cart-footer">
+      <div class="cart-total">
+        <span>Total</span>
+        <span id="cartTotal">$0.00</span>
+      </div>
+      <button class="checkout-btn" id="checkoutBtn" disabled>Let's Take This Offline (Checkout)</button>
+    </div>
+  </aside>
+
+  <div class="toast" id="toast"></div>
+
+  <div class="modal-overlay" id="checkoutModal">
+    <div class="modal">
+      <div class="modal-icon">📧</div>
+      <h3>Per My Last Email...</h3>
+      <p>Your order has been sent to the procurement committee for review. Expected approval timeline: 6–8 business quarters.</p>
+      <button class="modal-btn" id="modalClose">Circle Back Later</button>
+    </div>
+  </div>
+
+  <script>
+    const products = [
+      {
+        id: 1,
+        name: 'Great Questions!! Next Slide Please',
+        tag: 'BESTSELLER',
+        quote: 'The classic. For when curiosity meets a hard stop at slide 47.',
+        price: 29.99,
+        color: '#1e3a5f',
+        shirtColor: '#1e3a5f',
+        textLines: ['GREAT QUESTIONS!!', 'NEXT SLIDE', 'PLEASE'],
+        featured: true
+      },
+      {
+        id: 2,
+        name: 'Sorry, I Was On Mute',
+        tag: 'EVERYONE\'S FAVORITE',
+        quote: 'You\'ve said it. They\'ve said it. The dog heard it.',
+        price: 27.99,
+        color: '#374151',
+        shirtColor: '#374151',
+        textLines: ['SORRY, I WAS', 'ON MUTE']
+      },
+      {
+        id: 3,
+        name: 'Can Everyone See My Screen?',
+        tag: 'TECH DIFFICULTIES',
+        quote: 'Narrator: They could not, in fact, see your screen.',
+        price: 27.99,
+        color: '#4c1d95',
+        shirtColor: '#4c1d95',
+        textLines: ['CAN EVERYONE', 'SEE MY SCREEN?']
+      },
+      {
+        id: 4,
+        name: 'Let\'s Take This Offline',
+        tag: 'CLASSIC CORPORATE',
+        quote: 'Translation: "I don\'t want to discuss this in front of everyone."',
+        price: 28.99,
+        color: '#14532d',
+        shirtColor: '#14532d',
+        textLines: ['LET\'S TAKE THIS', 'OFFLINE']
+      },
+      {
+        id: 5,
+        name: 'Per My Last Email...',
+        tag: 'PASSIVE AGGRESSIVE',
+        quote: 'The shirt that reads you louder than you ever could.',
+        price: 28.99,
+        color: '#7f1d1d',
+        shirtColor: '#7f1d1d',
+        textLines: ['PER MY LAST', 'EMAIL...']
+      },
+      {
+        id: 6,
+        name: 'Let\'s Circle Back On This',
+        tag: 'NEVER HAPPENING',
+        quote: 'Spoiler: you will never circle back on this.',
+        price: 27.99,
+        color: '#78350f',
+        shirtColor: '#78350f',
+        textLines: ['LET\'S CIRCLE BACK', 'ON THIS']
+      }
+    ];
+
+    let cart = [];
+
+    function createTshirtSVG(shirtColor, textLines) {
+      const lineHeight = 10;
+      const startY = 52 - ((textLines.length - 1) * lineHeight) / 2;
+      const textElements = textLines.map((line, i) =>
+        `<text class="tshirt-text" x="50" y="${startY + i * lineHeight}">${line}</text>`
+      ).join('');
+
+      return `
+        <svg class="tshirt" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <path class="tshirt-body" d="M25 22 L15 28 L20 38 L30 32 L30 85 Q50 90 70 85 L70 32 L80 38 L85 28 L75 22 Q65 18 50 18 Q35 18 25 22 Z" style="--shirt-color: ${shirtColor}"/>
+          ${textElements}
+        </svg>
+      `;
+    }
+
+    function renderProducts() {
+      const container = document.getElementById('products');
+      container.innerHTML = products.map(p => `
+        <article class="product-card ${p.featured ? 'featured' : ''}" data-id="${p.id}">
+          <div class="product-visual" style="background: linear-gradient(160deg, ${p.color}33 0%, #0f172a 100%)">
+            <span class="product-badge">${p.tag}</span>
+            ${createTshirtSVG(p.shirtColor, p.textLines)}
+          </div>
+          <div class="product-info">
+            <div class="product-tag">#corporate-core</div>
+            <h3>${p.name}</h3>
+            <p class="product-quote">"${p.quote}"</p>
+            <div class="product-footer">
+              <div class="price">$${p.price.toFixed(2)} <span>USD</span></div>
+              <button class="add-btn" onclick="addToCart(${p.id})">Add to Cart</button>
+            </div>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    function addToCart(id) {
+      const product = products.find(p => p.id === id);
+      const existing = cart.find(item => item.id === id);
+      if (existing) {
+        existing.qty++;
+      } else {
+        cart.push({ ...product, qty: 1 });
+      }
+      updateCart();
+      showToast(`Added "${product.name}" — synergy achieved!`);
+    }
+
+    function updateQty(id, delta) {
+      const item = cart.find(i => i.id === id);
+      if (!item) return;
+      item.qty += delta;
+      if (item.qty <= 0) {
+        cart = cart.filter(i => i.id !== id);
+      }
+      updateCart();
+    }
+
+    function removeFromCart(id) {
+      cart = cart.filter(i => i.id !== id);
+      updateCart();
+    }
+
+    function updateCart() {
+      const count = cart.reduce((sum, item) => sum + item.qty, 0);
+      const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+
+      document.getElementById('cartCount').textContent = count;
+      document.getElementById('cartTotal').textContent = `$${total.toFixed(2)}`;
+      document.getElementById('checkoutBtn').disabled = cart.length === 0;
+
+      const cartItems = document.getElementById('cartItems');
+      if (cart.length === 0) {
+        cartItems.innerHTML = '<p class="cart-empty">Your cart is as empty as the action items from today\'s standup.</p>';
+        return;
+      }
+
+      cartItems.innerHTML = cart.map(item => `
+        <div class="cart-item">
+          <div class="cart-item-info">
+            <h4>${item.name}</h4>
+            <div class="item-price">$${item.price.toFixed(2)} each</div>
+            <div class="qty-controls">
+              <button class="qty-btn" onclick="updateQty(${item.id}, -1)" aria-label="Decrease quantity">−</button>
+              <span>${item.qty}</span>
+              <button class="qty-btn" onclick="updateQty(${item.id}, 1)" aria-label="Increase quantity">+</button>
+            </div>
+            <button class="remove-btn" onclick="removeFromCart(${item.id})">Remove</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+
+    function openCart() {
+      document.getElementById('cartOverlay').classList.add('open');
+      document.getElementById('cartDrawer').classList.add('open');
+    }
+
+    function closeCart() {
+      document.getElementById('cartOverlay').classList.remove('open');
+      document.getElementById('cartDrawer').classList.remove('open');
+    }
+
+    document.getElementById('cartToggle').addEventListener('click', openCart);
+    document.getElementById('cartClose').addEventListener('click', closeCart);
+    document.getElementById('cartOverlay').addEventListener('click', closeCart);
+
+    document.getElementById('checkoutBtn').addEventListener('click', () => {
+      closeCart();
+      document.getElementById('checkoutModal').classList.add('open');
+      cart = [];
+      updateCart();
+    });
+
+    document.getElementById('modalClose').addEventListener('click', () => {
+      document.getElementById('checkoutModal').classList.remove('open');
+    });
+
+    renderProducts();
+    updateCart();
+  </script>
+</body>
+</html>
