@@ -285,6 +285,47 @@
     .ccp-status.on-call { background: #dbeafe; }
     .ccp-status.on-call .label { color: #1d4ed8; }
 
+    .ccp-status.ringing {
+      animation: ring-pulse 1.2s ease-in-out infinite;
+      background: #fef3c7;
+      border: 2px solid #f59e0b;
+    }
+    .ccp-status.ringing .label { color: #b45309; }
+
+    @keyframes ring-pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.45); }
+      50% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
+    }
+
+    .ring-icon {
+      display: inline-block;
+      font-size: 28px;
+      animation: ring-shake 0.4s ease-in-out infinite;
+    }
+
+    @keyframes ring-shake {
+      0%, 100% { transform: rotate(-8deg); }
+      50% { transform: rotate(8deg); }
+    }
+
+    .call-bar-btn.accept.ringing-pulse {
+      animation: accept-glow 1s ease-in-out infinite;
+      box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.35);
+    }
+
+    @keyframes accept-glow {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.03); }
+    }
+
+    .call-bar-btn.decline {
+      background: var(--color-bg-primary);
+      border: 1px solid var(--color-border-secondary);
+      color: var(--color-text-default);
+      flex: 0 0 auto;
+      padding: 10px 14px;
+    }
+
     .ccp-queue { background: var(--color-bg-secondary); border-radius: var(--radius-button); font-size: 11px; padding: 8px 10px; }
     .ccp-queue strong { display: block; font-size: 12px; margin-bottom: 2px; }
 
@@ -546,7 +587,40 @@
       padding: 10px 12px;
     }
 
-    .dup-alert a { color: var(--accent); cursor: pointer; font-weight: 600; }
+    .dup-alert-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .dup-alert-actions .btn { font-size: 12px; padding: 8px 12px; }
+
+    .linked-badge {
+      background: #dbeafe;
+      border-radius: 12px;
+      color: #1d4ed8;
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      margin-left: 6px;
+      padding: 2px 8px;
+    }
+
+    tr.case-linked { background: #eff6ff !important; }
+    tr.case-linked td { background: #eff6ff; }
+
+    .link-success-panel {
+      background: var(--success-bg);
+      border: 1px solid #86efac;
+      border-radius: var(--radius-button);
+      margin-top: 12px;
+      padding: 14px;
+      text-align: center;
+    }
+
+    .link-success-panel strong { color: var(--success); display: block; font-size: 15px; margin-bottom: 4px; }
+    .link-success-panel span { color: var(--color-text-supplementary); font-size: 12px; }
 
     .modal-steps { display: flex; gap: 8px; margin-bottom: 16px; }
     .modal-step {
@@ -727,10 +801,11 @@
         </div>
 
         <div class="call-bar" id="call-bar">
-          <button class="call-bar-btn accept disabled" id="btn-accept" type="button" disabled onclick="simulateIncomingCall()">
+          <button class="call-bar-btn accept disabled" id="btn-accept" type="button" disabled onclick="acceptCall()">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
             Accept
           </button>
+          <button class="call-bar-btn decline hidden" id="btn-decline" type="button" onclick="declineCall()">Decline</button>
 
           <div class="actions-menu-wrap" id="actions-menu-wrap">
             <button class="actions-menu-trigger disabled" id="actions-trigger" type="button" disabled>
@@ -765,7 +840,10 @@
             <span class="clippy-chip">Autopay Issue</span>
             <span class="clippy-chip">Refund Request</span>
           </div>
-          <button class="clippy-action-btn" type="button" onclick="openModalFromClippy()">→ Pre-fill case form</button>
+          <div style="display:flex;flex-direction:column;gap:6px;margin-top:8px">
+            <button class="clippy-action-btn" type="button" onclick="openModalFromClippy()">→ Pre-fill new case form</button>
+            <button class="clippy-action-btn" type="button" onclick="linkExistingCaseFromClippy()">🔗 Link to existing case #00048291</button>
+          </div>
         </div>
 
         <div class="clippy-chat">
@@ -877,14 +955,23 @@
       </div>
       <div class="dup-alert hidden" id="dup-alert">
         ⚠️ Possible duplicate: Case <strong>#00048291</strong> (Payment Inquiry, In Progress) was opened today.
-        <a onclick="closeModal()">View existing case</a> or proceed to create anyway.
+        <div class="dup-alert-actions">
+          <button class="btn btn-primary" type="button" onclick="linkExistingCase()">Link to Case #00048291</button>
+          <button class="btn btn-secondary" type="button" onclick="viewExistingCase()">View case</button>
+        </div>
+      </div>
+
+      <div class="link-success-panel hidden" id="link-success-panel">
+        <strong>✓ Case #00048291 linked</strong>
+        <span>Voice interaction attached · case status unchanged</span>
       </div>
     </div>
 
     <div class="modal-footer">
       <button class="btn btn-secondary" type="button" onclick="closeModal()">Cancel</button>
       <button class="btn btn-primary" type="button" id="modal-next-btn" onclick="handleModalNext()">Next</button>
-      <button class="btn btn-primary hidden" type="button" id="modal-create-btn" disabled onclick="createCase()">Create Case</button>
+      <button class="btn btn-secondary hidden" type="button" id="modal-link-btn" onclick="linkExistingCase()">Link Existing Case</button>
+      <button class="btn btn-primary hidden" type="button" id="modal-create-btn" disabled onclick="createCase()">Create Anyway</button>
     </div>
   </div>
 </div>
@@ -897,9 +984,14 @@
 
   let isOnline = false;
   let onCall = false;
+  let isRinging = false;
   let ccpMinimized = false;
   let modalStep = 1;
   let caseCounter = 48292;
+  let ringTimer = null;
+  let callTimer = null;
+  let callSeconds = 0;
+  let caseLinked = false;
 
   function switchNav(nav) {
     document.querySelectorAll('.nav-item').forEach(el => el.classList.toggle('active', el.dataset.nav === nav));
@@ -950,18 +1042,24 @@
       track.classList.add('on');
       label.textContent = 'Online';
       label.className = 'toggle-label on';
-      if (!onCall) {
+      if (!onCall && !isRinging) {
         status.className = 'ccp-status available';
         status.innerHTML = '<div class="icon">🟢</div><div class="label">Available — Phone</div><div class="sublabel">Waiting for incoming calls…</div>';
       }
       metrics.style.opacity = '1';
       queue.classList.remove('hidden');
-      acceptBtn.classList.remove('disabled');
-      acceptBtn.disabled = false;
+      if (!onCall && !isRinging) {
+        acceptBtn.classList.add('disabled');
+        acceptBtn.disabled = true;
+      }
+      clearTimeout(ringTimer);
+      ringTimer = setTimeout(startIncomingRing, 3500);
     } else {
       track.classList.remove('on');
       label.textContent = 'Offline';
       label.className = 'toggle-label off';
+      clearTimeout(ringTimer);
+      stopRinging();
       onCall = false;
       status.className = 'ccp-status';
       status.innerHTML = '<div class="icon">📴</div><div class="label">You are offline</div><div class="sublabel">Toggle online to receive calls</div>';
@@ -970,25 +1068,63 @@
       acceptBtn.classList.add('disabled');
       acceptBtn.disabled = true;
       setCallControlsEnabled(false);
+      stopCallTimer();
     }
   }
 
-  function simulateIncomingCall() {
-    if (!isOnline || onCall) return;
+  function startIncomingRing() {
+    if (!isOnline || onCall || isRinging) return;
+    isRinging = true;
+    if (ccpMinimized) toggleCcpMinimize(false);
+    switchCcpSection('connect');
+
     const status = document.getElementById('ccp-status');
-    status.className = 'ccp-status on-call';
-    status.innerHTML = '<div class="icon">📞</div><div class="label">Incoming call</div><div class="sublabel">+1 (415) 555-0142 · Sarah Mitchell</div>';
-    document.getElementById('btn-accept').textContent = 'Accept';
-    setTimeout(() => {
-      if (!onCall && isOnline) acceptCall();
-    }, 1200);
+    status.className = 'ccp-status ringing';
+    status.innerHTML = `
+      <div class="icon"><span class="ring-icon">📞</span></div>
+      <div class="label">Incoming call…</div>
+      <div class="sublabel">+1 (415) 555-0142 · Sarah Mitchell</div>
+      <div class="sublabel" style="margin-top:6px;font-weight:600;color:#b45309">Ringing</div>
+    `;
+
+    const acceptBtn = document.getElementById('btn-accept');
+    acceptBtn.classList.remove('disabled');
+    acceptBtn.classList.add('ringing-pulse');
+    acceptBtn.disabled = false;
+    document.getElementById('btn-decline').classList.remove('hidden');
+    showToast('Incoming call from Sarah Mitchell');
+  }
+
+  function stopRinging() {
+    isRinging = false;
+    const acceptBtn = document.getElementById('btn-accept');
+    acceptBtn.classList.remove('ringing-pulse');
+    document.getElementById('btn-decline').classList.add('hidden');
+    const status = document.getElementById('ccp-status');
+    status.classList.remove('ringing');
+  }
+
+  function declineCall() {
+    if (!isRinging) return;
+    stopRinging();
+    const status = document.getElementById('ccp-status');
+    status.className = 'ccp-status available';
+    status.innerHTML = '<div class="icon">🟢</div><div class="label">Available — Phone</div><div class="sublabel">Call declined · waiting for next contact</div>';
+    document.getElementById('btn-accept').classList.add('disabled');
+    document.getElementById('btn-accept').disabled = true;
+    showToast('Call declined');
+    ringTimer = setTimeout(startIncomingRing, 8000);
   }
 
   function acceptCall() {
+    if (!isRinging && !isOnline) return;
+    if (onCall) return;
+    stopRinging();
     onCall = true;
-    const status = document.getElementById('ccp-status');
-    status.className = 'ccp-status on-call';
-    status.innerHTML = '<div class="icon">🗣️</div><div class="label">On call — 0:00</div><div class="sublabel">+1 (415) 555-0142 · Sarah Mitchell</div>';
+    callSeconds = 0;
+    updateCallTimer();
+    callTimer = setInterval(updateCallTimer, 1000);
+
     document.getElementById('btn-accept').classList.add('disabled');
     document.getElementById('btn-accept').disabled = true;
     setCallControlsEnabled(true);
@@ -996,16 +1132,31 @@
     showToast('Call connected — Clippy activated');
   }
 
+  function updateCallTimer() {
+    callSeconds++;
+    const m = Math.floor(callSeconds / 60);
+    const s = String(callSeconds % 60).padStart(2, '0');
+    const status = document.getElementById('ccp-status');
+    status.className = 'ccp-status on-call';
+    status.innerHTML = `<div class="icon">🗣️</div><div class="label">On call — ${m}:${s}</div><div class="sublabel">+1 (415) 555-0142 · Sarah Mitchell</div>`;
+  }
+
+  function stopCallTimer() {
+    clearInterval(callTimer);
+    callTimer = null;
+    callSeconds = 0;
+  }
+
   function endCall() {
     onCall = false;
+    stopCallTimer();
     setCallControlsEnabled(false);
     const status = document.getElementById('ccp-status');
     if (isOnline) {
       status.className = 'ccp-status available';
       status.innerHTML = '<div class="icon">🟢</div><div class="label">Available — Phone</div><div class="sublabel">After-call work complete</div>';
-      document.getElementById('btn-accept').classList.remove('disabled');
-      document.getElementById('btn-accept').disabled = false;
-      document.getElementById('btn-accept').innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg> Accept';
+      document.getElementById('btn-accept').classList.add('disabled');
+      document.getElementById('btn-accept').disabled = true;
     }
     showToast('Call ended');
   }
@@ -1047,6 +1198,8 @@
     document.getElementById('modal-next-btn').classList.remove('hidden');
     document.getElementById('modal-create-btn').classList.add('hidden');
     document.getElementById('modal-create-btn').disabled = true;
+    document.getElementById('modal-link-btn').classList.add('hidden');
+    document.getElementById('link-success-panel').classList.add('hidden');
     document.getElementById('dup-alert').classList.add('hidden');
     document.getElementById('step-indicator-1').className = 'modal-step active';
     document.getElementById('step-indicator-2').className = 'modal-step';
@@ -1092,12 +1245,64 @@
       if (check.id === 'dup') document.getElementById('dup-alert').classList.remove('hidden');
     }
 
+    document.getElementById('modal-link-btn').classList.remove('hidden');
     document.getElementById('modal-create-btn').classList.remove('hidden');
     document.getElementById('modal-create-btn').disabled = false;
     document.getElementById('step-indicator-2').className = 'modal-step done';
   }
 
   function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+  function applyCaseLink() {
+    caseLinked = true;
+    const row = document.getElementById('dup-case-row');
+    row.classList.add('case-linked');
+    const caseNumCell = row.querySelector('td strong');
+    if (!row.querySelector('.linked-badge')) {
+      caseNumCell.insertAdjacentHTML('afterend', '<span class="linked-badge">Linked · active call</span>');
+    }
+    return row;
+  }
+
+  function linkExistingCase() {
+    const row = applyCaseLink();
+    const modalOpen = document.getElementById('modal').classList.contains('open');
+    if (modalOpen) {
+      document.getElementById('link-success-panel').classList.remove('hidden');
+      document.getElementById('dup-alert').classList.add('hidden');
+      document.getElementById('modal-link-btn').classList.add('hidden');
+      document.getElementById('modal-create-btn').classList.add('hidden');
+      document.getElementById('modal-title').textContent = 'Case Linked';
+      document.getElementById('modal-subtitle').textContent = 'Voice interaction attached to Case #00048291 in Salesforce';
+      setTimeout(() => {
+        closeModal();
+        switchNav('cases');
+        row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 1800);
+    } else {
+      switchNav('cases');
+      row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    showToast('Case #00048291 linked to this interaction');
+  }
+
+  function linkExistingCaseFromClippy() {
+    if (!onCall) {
+      showToast('Accept the call first to link a case');
+      switchCcpSection('connect');
+      return;
+    }
+    linkExistingCase();
+  }
+
+  function viewExistingCase() {
+    closeModal();
+    switchNav('cases');
+    const row = document.getElementById('dup-case-row');
+    row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    row.style.outline = '2px solid var(--accent)';
+    setTimeout(() => { row.style.outline = ''; }, 2000);
+  }
 
   function createCase() {
     const tbody = document.getElementById('cases-body');
