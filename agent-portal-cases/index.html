@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Agent Portal 3.0 — Case Creation Demo</title>
   <style>
-    /* Approximates affirm2025Light tokens from @affirm/components-core */
     :root {
       --color-bg-primary: #ffffff;
       --color-bg-secondary: #f3f4f6;
@@ -19,10 +18,13 @@
       --color-icon-default: #374151;
       --accent: #4a4af4;
       --accent-hover: #3d3dd4;
+      --accent-light: #ede9fe;
       --success: #059669;
       --success-bg: #d1fae5;
+      --warning: #d97706;
       --warning-bg: #fef3c7;
       --warning-text: #92400e;
+      --danger: #dc2626;
       --radius-button: 8px;
       --radius-page: 12px;
       --shadow-large: 0 4px 12px rgb(0 0 0 / 10%);
@@ -34,6 +36,7 @@
       --nav-width: 80px;
       --header-height: 80px;
       --ccp-width: 320px;
+      --ccp-minimized-width: 44px;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -48,7 +51,6 @@
       overflow: hidden;
     }
 
-    /* ── Demo banner ── */
     .demo-banner {
       background: var(--warning-bg);
       color: var(--warning-text);
@@ -58,7 +60,6 @@
       font-weight: 600;
     }
 
-    /* ── Global header (matches global-header/styles.module.css) ── */
     .global-header {
       align-items: center;
       background: var(--color-bg-primary);
@@ -74,585 +75,487 @@
       z-index: 10;
     }
 
-    .header-lead {
-      align-items: center;
-      display: flex;
-      gap: var(--spacing-sm);
-      grid-area: lead;
-      min-width: 0;
-    }
-
-    .brand-link {
-      align-items: center;
-      color: inherit;
-      display: flex;
-      flex-shrink: 0;
-      gap: var(--spacing-sm);
-      text-decoration: none;
-    }
-
+    .header-lead { align-items: center; display: flex; gap: var(--spacing-sm); grid-area: lead; min-width: 0; }
+    .brand-link { align-items: center; color: inherit; display: flex; flex-shrink: 0; gap: var(--spacing-sm); text-decoration: none; }
     .logo { height: 40px; width: 40px; }
-
-    .breadcrumb {
-      align-items: center;
-      display: flex;
-      gap: var(--spacing-xs);
-      min-width: 0;
-      overflow: hidden;
-    }
-
-    .breadcrumb-link {
-      color: var(--color-text-interactive);
-      flex-shrink: 0;
-      font-size: 16px;
-      text-decoration: underline;
-      white-space: nowrap;
-    }
-
+    .breadcrumb { align-items: center; display: flex; gap: var(--spacing-xs); min-width: 0; overflow: hidden; }
+    .breadcrumb-link { color: var(--color-text-interactive); flex-shrink: 0; font-size: 16px; text-decoration: underline; white-space: nowrap; }
     .breadcrumb-sep { color: var(--color-text-supplementary); flex-shrink: 0; }
-
-    .breadcrumb-current {
-      color: var(--color-text-supplementary);
-      font-size: 16px;
-      min-width: 0;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
+    .breadcrumb-current { color: var(--color-text-supplementary); font-size: 16px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .header-search { grid-area: search; min-width: 0; }
-
     .search-pill {
-      align-items: center;
-      background: var(--color-bg-secondary);
-      border: 1px solid var(--color-border-secondary);
-      border-radius: var(--radius-button);
-      display: flex;
-      gap: var(--spacing-sm);
-      max-width: 560px;
-      margin: 0 auto;
-      padding: 10px 14px;
-      width: 100%;
+      align-items: center; background: var(--color-bg-secondary); border: 1px solid var(--color-border-secondary);
+      border-radius: var(--radius-button); display: flex; gap: var(--spacing-sm); max-width: 560px; margin: 0 auto; padding: 10px 14px; width: 100%;
     }
-
-    .search-pill input {
-      background: transparent;
-      border: none;
-      flex: 1;
-      font-size: 14px;
-      outline: none;
-    }
-
-    .search-mode {
-      color: var(--color-text-supplementary);
-      font-size: 12px;
-      font-weight: 600;
-      white-space: nowrap;
-    }
-
-    .header-right {
-      align-items: center;
-      display: flex;
-      gap: var(--spacing-sm);
-      grid-area: right;
-    }
-
+    .search-pill input { background: transparent; border: none; flex: 1; font-size: 14px; outline: none; }
+    .search-mode { color: var(--color-text-supplementary); font-size: 12px; font-weight: 600; white-space: nowrap; }
+    .header-right { align-items: center; display: flex; gap: var(--spacing-sm); grid-area: right; }
     .geo-btn, .icon-btn {
-      align-items: center;
-      background: var(--color-bg-primary);
-      border: 1px solid var(--color-border-secondary);
-      border-radius: var(--radius-button);
-      cursor: pointer;
-      display: flex;
-      font-size: 13px;
-      font-weight: 600;
-      gap: 4px;
-      padding: 8px 12px;
+      align-items: center; background: var(--color-bg-primary); border: 1px solid var(--color-border-secondary);
+      border-radius: var(--radius-button); cursor: pointer; display: flex; font-size: 13px; font-weight: 600; gap: 4px; padding: 8px 12px;
     }
-
     .icon-btn { padding: 8px; }
 
-    /* ── Shell layout (matches page-shell styles.module.css) ── */
     .shell {
       column-gap: var(--spacing-xs);
       display: grid;
       grid-template-columns: var(--nav-width) 1fr var(--ccp-width);
-      height: calc(100vh - var(--header-height) - 1px - 29px); /* header + demo banner */
+      height: calc(100vh - var(--header-height) - 1px - 29px);
+      transition: grid-template-columns 0.25s ease;
     }
 
-    /* ── Collapsed nav ── */
+    .shell.ccp-minimized {
+      grid-template-columns: var(--nav-width) 1fr var(--ccp-minimized-width);
+    }
+
     .collapsed-nav {
-      align-items: center;
-      display: flex;
-      flex-direction: column;
-      gap: var(--spacing-sm);
+      align-items: center; display: flex; flex-direction: column; gap: var(--spacing-sm);
       padding: var(--spacing-lg) var(--spacing-sm) 0;
     }
 
     .nav-item {
-      align-items: center;
-      border-radius: var(--radius-button);
-      color: var(--color-icon-default);
-      cursor: pointer;
-      display: flex;
-      height: 48px;
-      justify-content: center;
-      position: relative;
-      text-decoration: none;
-      width: 48px;
+      align-items: center; border-radius: var(--radius-button); color: var(--color-icon-default); cursor: pointer;
+      display: flex; height: 48px; justify-content: center; position: relative; text-decoration: none; width: 48px;
     }
-
     .nav-item:hover { background: var(--color-brand-indigo-hover); }
     .nav-item.active { background: var(--color-brand-indigo); }
-
     .nav-item .tooltip {
-      background: #1f2937;
-      border-radius: 4px;
-      color: #fff;
-      display: none;
-      font-size: 12px;
-      left: calc(100% + 8px);
-      padding: 4px 8px;
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      white-space: nowrap;
-      z-index: 20;
+      background: #1f2937; border-radius: 4px; color: #fff; display: none; font-size: 12px;
+      left: calc(100% + 8px); padding: 4px 8px; position: absolute; top: 50%; transform: translateY(-50%); white-space: nowrap; z-index: 20;
     }
-
     .nav-item:hover .tooltip { display: block; }
-
     .nav-item.new::after {
-      content: '';
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      width: 8px;
-      height: 8px;
-      background: var(--accent);
-      border-radius: 50%;
-      border: 2px solid var(--color-bg-primary);
+      content: ''; position: absolute; top: 8px; right: 8px; width: 8px; height: 8px;
+      background: var(--accent); border-radius: 50%; border: 2px solid var(--color-bg-primary);
     }
 
-    /* ── Main content ── */
-    .main {
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-      overflow: hidden;
-    }
-
-    .page {
-      display: flex;
-      flex-direction: column;
-      gap: var(--spacing-lg);
-      height: 100%;
-      padding: var(--spacing-lg) var(--spacing-lg) 0;
-    }
-
-    .page-header {
-      display: flex;
-      flex-direction: column;
-      gap: var(--spacing-sm);
-      flex-shrink: 0;
-    }
-
-    .header-row {
-      align-items: center;
-      display: flex;
-      flex-wrap: wrap;
-      gap: var(--spacing-md);
-      justify-content: space-between;
-    }
-
-    .header-left {
-      align-items: center;
-      display: flex;
-      gap: var(--spacing-sm);
-    }
-
-    .page-title {
-      font-size: 24px;
-      font-weight: 600;
-      letter-spacing: -0.02em;
-      margin: 0;
-    }
-
+    .main { display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
+    .page { display: flex; flex-direction: column; gap: var(--spacing-lg); height: 100%; padding: var(--spacing-lg) var(--spacing-lg) 0; }
+    .page-header { display: flex; flex-direction: column; gap: var(--spacing-sm); flex-shrink: 0; }
+    .header-row { align-items: center; display: flex; flex-wrap: wrap; gap: var(--spacing-md); justify-content: space-between; }
+    .header-left { align-items: center; display: flex; gap: var(--spacing-sm); }
+    .page-title { font-size: 24px; font-weight: 600; letter-spacing: -0.02em; margin: 0; }
     .header-actions { display: flex; gap: var(--spacing-sm); }
 
     .btn {
-      align-items: center;
-      border-radius: var(--radius-button);
-      cursor: pointer;
-      display: inline-flex;
-      font-size: 14px;
-      font-weight: 600;
-      gap: 6px;
-      padding: 10px 16px;
-      border: none;
-      transition: background .15s;
+      align-items: center; border-radius: var(--radius-button); cursor: pointer; display: inline-flex;
+      font-size: 14px; font-weight: 600; gap: 6px; padding: 10px 16px; border: none; transition: background .15s;
     }
-
     .btn-primary { background: var(--accent); color: #fff; }
     .btn-primary:hover { background: var(--accent-hover); }
-    .btn-secondary {
-      background: var(--color-bg-primary);
-      border: 1px solid var(--color-border-secondary);
-      color: var(--color-text-default);
-    }
+    .btn-primary:disabled { opacity: .5; cursor: not-allowed; }
+    .btn-secondary { background: var(--color-bg-primary); border: 1px solid var(--color-border-secondary); color: var(--color-text-default); }
     .btn-secondary:hover { background: var(--color-bg-secondary); }
 
-    /* Tab strip (matches header-tabs + cc Tabs underline style) */
-    .tabs {
-      border-bottom: 1px solid var(--color-border-secondary);
-      display: flex;
-      gap: 0;
-    }
-
+    .tabs { border-bottom: 1px solid var(--color-border-secondary); display: flex; gap: 0; }
     .tab {
-      background: none;
-      border: none;
-      border-bottom: 2px solid transparent;
-      color: var(--color-text-supplementary);
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 500;
-      margin-bottom: -1px;
-      padding: 10px 16px;
+      background: none; border: none; border-bottom: 2px solid transparent; color: var(--color-text-supplementary);
+      cursor: pointer; font-size: 14px; font-weight: 500; margin-bottom: -1px; padding: 10px 16px;
     }
-
     .tab:hover { color: var(--color-text-default); }
     .tab.active { border-bottom-color: var(--accent); color: var(--accent); font-weight: 600; }
 
-    .tab.new-tab::after {
-      content: 'NEW';
-      background: var(--accent);
-      border-radius: 3px;
-      color: #fff;
-      font-size: 9px;
-      font-weight: 700;
-      margin-left: 6px;
-      padding: 1px 5px;
-      vertical-align: middle;
-    }
-
-    /* Content surface */
     .content-surface {
-      background: var(--color-bg-surface-secondary);
-      border-radius: var(--radius-page) var(--radius-page) 0 0;
-      flex: 1;
-      overflow-y: auto;
-      padding: var(--spacing-lg) var(--spacing-md) 48px;
+      background: var(--color-bg-surface-secondary); border-radius: var(--radius-page) var(--radius-page) 0 0;
+      flex: 1; overflow-y: auto; padding: var(--spacing-lg) var(--spacing-md) 48px;
     }
 
     .tab-panel { display: none; }
     .tab-panel.active { display: block; }
 
-    /* Overview cards grid */
-    .grid-2 {
-      display: grid;
-      gap: var(--spacing-lg);
-      grid-template-columns: 1fr 1fr;
-    }
-
-    .card {
-      background: var(--color-bg-primary);
-      border: 1px solid var(--color-border-secondary);
-      border-radius: var(--radius-button);
-      padding: var(--spacing-lg);
-    }
-
-    .card h4 {
-      color: var(--color-text-supplementary);
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.04em;
-      margin-bottom: 8px;
-      text-transform: uppercase;
-    }
-
+    .grid-2 { display: grid; gap: var(--spacing-lg); grid-template-columns: 1fr 1fr; }
+    .card { background: var(--color-bg-primary); border: 1px solid var(--color-border-secondary); border-radius: var(--radius-button); padding: var(--spacing-lg); }
+    .card h4 { color: var(--color-text-supplementary); font-size: 11px; font-weight: 600; letter-spacing: 0.04em; margin-bottom: 8px; text-transform: uppercase; }
     .card .value { font-size: 20px; font-weight: 700; }
     .card .sub { color: var(--color-text-supplementary); font-size: 12px; margin-top: 4px; }
 
-    /* Cases table */
-    .cases-toolbar {
-      align-items: center;
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: var(--spacing-lg);
-    }
-
+    .cases-toolbar { align-items: center; display: flex; justify-content: space-between; margin-bottom: var(--spacing-lg); }
     .cases-toolbar h3 { font-size: 16px; font-weight: 600; }
 
     .data-table {
-      background: var(--color-bg-primary);
-      border-collapse: collapse;
-      border-radius: var(--radius-button);
-      box-shadow: var(--shadow-large);
-      overflow: hidden;
-      width: 100%;
+      background: var(--color-bg-primary); border-collapse: collapse; border-radius: var(--radius-button);
+      box-shadow: var(--shadow-large); overflow: hidden; width: 100%;
     }
-
     .data-table th {
-      background: var(--color-bg-secondary);
-      border-bottom: 1px solid var(--color-border-secondary);
-      color: var(--color-text-supplementary);
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.05em;
-      padding: 10px 14px;
-      text-align: left;
-      text-transform: uppercase;
+      background: var(--color-bg-secondary); border-bottom: 1px solid var(--color-border-secondary);
+      color: var(--color-text-supplementary); font-size: 11px; font-weight: 600; letter-spacing: 0.05em;
+      padding: 10px 14px; text-align: left; text-transform: uppercase;
     }
-
-    .data-table td {
-      border-bottom: 1px solid var(--color-border-secondary);
-      font-size: 13px;
-      padding: 12px 14px;
-    }
-
+    .data-table td { border-bottom: 1px solid var(--color-border-secondary); font-size: 13px; padding: 12px 14px; }
     .data-table tr:last-child td { border-bottom: none; }
     .data-table tr:hover td { background: #fafbfc; }
 
-    .status-pill {
-      border-radius: 12px;
-      display: inline-block;
-      font-size: 12px;
-      font-weight: 500;
-      padding: 2px 10px;
-    }
-
+    .status-pill { border-radius: 12px; display: inline-block; font-size: 12px; font-weight: 500; padding: 2px 10px; }
     .status-open { background: #dbeafe; color: #1d4ed8; }
     .status-progress { background: #fef3c7; color: #b45309; }
     .status-closed { background: #e5e7eb; color: #6b7280; }
 
-    /* ── Amazon Connect CCP panel ── */
+    /* ── CCP panel ── */
     .ccp-panel {
       background: var(--color-bg-primary);
       border-left: 1px solid var(--color-border-secondary);
       display: flex;
       flex-direction: column;
       overflow: hidden;
+      position: relative;
+      transition: width 0.25s ease;
     }
+
+    .ccp-panel.minimized .ccp-body,
+    .ccp-panel.minimized .ccp-footer,
+    .ccp-panel.minimized .ccp-section-tabs,
+    .ccp-panel.minimized .ccp-header-controls { display: none; }
+
+    .ccp-panel.minimized .ccp-header {
+      flex-direction: column;
+      gap: 12px;
+      height: 100%;
+      justify-content: flex-start;
+      padding: 12px 6px;
+    }
+
+    .ccp-panel.minimized .ccp-header h3 {
+      flex-direction: column;
+      font-size: 10px;
+      gap: 4px;
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      transform: rotate(180deg);
+    }
+
+    .ccp-panel.minimized .ccp-header h3 svg { transform: rotate(180deg); }
 
     .ccp-header {
       align-items: center;
       border-bottom: 1px solid var(--color-border-secondary);
       display: flex;
+      flex-shrink: 0;
       justify-content: space-between;
-      padding: 14px 16px;
-    }
-
-    .ccp-header h3 {
-      align-items: center;
-      display: flex;
-      font-size: 14px;
-      font-weight: 600;
-      gap: 6px;
-    }
-
-    .ccp-header h3 svg { color: var(--accent); }
-
-    .online-toggle {
-      align-items: center;
-      cursor: pointer;
-      display: flex;
-      gap: 8px;
-      user-select: none;
-    }
-
-    .toggle-track {
-      background: #d1d5db;
-      border-radius: 11px;
-      height: 22px;
-      position: relative;
-      transition: background .2s;
-      width: 40px;
-    }
-
-    .toggle-track.on { background: var(--success); }
-
-    .toggle-thumb {
-      background: #fff;
-      border-radius: 50%;
-      box-shadow: 0 1px 3px rgba(0,0,0,.2);
-      height: 18px;
-      left: 2px;
-      position: absolute;
-      top: 2px;
-      transition: transform .2s;
-      width: 18px;
-    }
-
-    .toggle-track.on .toggle-thumb { transform: translateX(18px); }
-
-    .toggle-label { font-size: 12px; font-weight: 600; }
-    .toggle-label.off { color: var(--color-text-supplementary); }
-    .toggle-label.on { color: var(--success); }
-
-    .ccp-body {
-      display: flex;
-      flex: 1;
-      flex-direction: column;
-      gap: 12px;
-      overflow-y: auto;
-      padding: 16px;
-    }
-
-    .ccp-status {
-      background: var(--color-bg-secondary);
-      border-radius: var(--radius-button);
-      padding: 20px 12px;
-      text-align: center;
-    }
-
-    .ccp-status .icon { font-size: 28px; margin-bottom: 8px; }
-    .ccp-status .label { font-size: 13px; font-weight: 600; }
-    .ccp-status .sublabel { color: var(--color-text-supplementary); font-size: 12px; margin-top: 4px; }
-    .ccp-status.available { background: var(--success-bg); }
-    .ccp-status.available .label { color: var(--success); }
-
-    .ccp-metrics {
-      display: grid;
-      gap: 8px;
-      grid-template-columns: 1fr 1fr;
-    }
-
-    .ccp-metric {
-      background: var(--color-bg-secondary);
-      border-radius: 6px;
-      padding: 10px;
-      text-align: center;
-    }
-
-    .ccp-metric .num { font-size: 18px; font-weight: 700; }
-    .ccp-metric .lbl { color: var(--color-text-supplementary); font-size: 11px; margin-top: 2px; }
-
-    .ccp-queue {
-      background: var(--color-bg-secondary);
-      border-radius: var(--radius-button);
-      font-size: 12px;
       padding: 10px 12px;
     }
 
-    .ccp-queue strong { display: block; font-size: 13px; margin-bottom: 2px; }
+    .ccp-header h3 { align-items: center; display: flex; font-size: 14px; font-weight: 600; gap: 6px; }
+    .ccp-header h3 svg { color: var(--accent); }
 
-    .ccp-controls {
-      display: grid;
-      gap: 8px;
-      grid-template-columns: repeat(3, 1fr);
-      margin-top: auto;
+    .ccp-header-controls { align-items: center; display: flex; gap: 8px; }
+
+    .ccp-icon-btn {
+      align-items: center; background: none; border: 1px solid var(--color-border-secondary);
+      border-radius: 6px; color: var(--color-text-supplementary); cursor: pointer;
+      display: flex; height: 28px; justify-content: center; width: 28px;
+    }
+    .ccp-icon-btn:hover { background: var(--color-bg-secondary); color: var(--color-text-default); }
+
+    .online-toggle { align-items: center; cursor: pointer; display: flex; gap: 6px; user-select: none; }
+    .toggle-track { background: #d1d5db; border-radius: 11px; height: 22px; position: relative; transition: background .2s; width: 40px; }
+    .toggle-track.on { background: var(--success); }
+    .toggle-thumb {
+      background: #fff; border-radius: 50%; box-shadow: 0 1px 3px rgba(0,0,0,.2);
+      height: 18px; left: 2px; position: absolute; top: 2px; transition: transform .2s; width: 18px;
+    }
+    .toggle-track.on .toggle-thumb { transform: translateX(18px); }
+    .toggle-label { font-size: 11px; font-weight: 600; }
+    .toggle-label.off { color: var(--color-text-supplementary); }
+    .toggle-label.on { color: var(--success); }
+
+    .ccp-section-tabs {
+      border-bottom: 1px solid var(--color-border-secondary);
+      display: flex;
+      flex-shrink: 0;
     }
 
-    .ccp-btn {
+    .ccp-section-tab {
+      background: none; border: none; border-bottom: 2px solid transparent;
+      color: var(--color-text-supplementary); cursor: pointer; flex: 1;
+      font-size: 12px; font-weight: 600; padding: 8px 4px;
+    }
+    .ccp-section-tab.active { border-bottom-color: var(--accent); color: var(--accent); }
+    .ccp-section-tab:hover { color: var(--color-text-default); }
+
+    .ccp-body { display: flex; flex: 1; flex-direction: column; gap: 10px; min-height: 0; overflow-y: auto; padding: 12px; }
+    .ccp-section { display: none; flex-direction: column; gap: 10px; flex: 1; }
+    .ccp-section.active { display: flex; }
+
+    .ccp-status { background: var(--color-bg-secondary); border-radius: var(--radius-button); padding: 16px 10px; text-align: center; }
+    .ccp-status .icon { font-size: 24px; margin-bottom: 6px; }
+    .ccp-status .label { font-size: 13px; font-weight: 600; }
+    .ccp-status .sublabel { color: var(--color-text-supplementary); font-size: 11px; margin-top: 4px; }
+    .ccp-status.available { background: var(--success-bg); }
+    .ccp-status.available .label { color: var(--success); }
+    .ccp-status.on-call { background: #dbeafe; }
+    .ccp-status.on-call .label { color: #1d4ed8; }
+
+    .ccp-queue { background: var(--color-bg-secondary); border-radius: var(--radius-button); font-size: 11px; padding: 8px 10px; }
+    .ccp-queue strong { display: block; font-size: 12px; margin-bottom: 2px; }
+
+    .ccp-metrics { display: grid; gap: 6px; grid-template-columns: 1fr 1fr; }
+    .ccp-metric { background: var(--color-bg-secondary); border-radius: 6px; padding: 8px; text-align: center; }
+    .ccp-metric .num { font-size: 16px; font-weight: 700; }
+    .ccp-metric .lbl { color: var(--color-text-supplementary); font-size: 10px; margin-top: 2px; }
+
+    /* Call bar + hover actions menu */
+    .call-bar {
       align-items: center;
+      display: flex;
+      gap: 8px;
+      margin-top: auto;
+      padding-top: 8px;
+    }
+
+    .call-bar-btn {
+      align-items: center; border-radius: var(--radius-button); cursor: pointer;
+      display: flex; font-size: 12px; font-weight: 600; gap: 6px; justify-content: center;
+      padding: 10px; border: none; flex: 1;
+    }
+    .call-bar-btn.accept { background: var(--success); color: #fff; }
+    .call-bar-btn.accept:hover { filter: brightness(1.05); }
+    .call-bar-btn.end { background: #fee2e2; color: var(--danger); flex: 0 0 auto; padding: 10px 14px; }
+    .call-bar-btn.disabled { opacity: .35; pointer-events: none; }
+
+    .actions-menu-wrap { position: relative; flex: 0 0 auto; }
+    .actions-menu-trigger {
+      align-items: center; background: var(--color-bg-primary); border: 1px solid var(--color-border-secondary);
+      border-radius: var(--radius-button); color: var(--color-text-default); cursor: pointer;
+      display: flex; font-size: 12px; font-weight: 600; gap: 4px; padding: 10px 12px;
+    }
+    .actions-menu-trigger.disabled { opacity: .35; pointer-events: none; }
+
+    .actions-popup {
       background: var(--color-bg-primary);
       border: 1px solid var(--color-border-secondary);
       border-radius: var(--radius-button);
-      color: var(--color-text-supplementary);
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      font-size: 11px;
-      font-weight: 500;
-      gap: 4px;
-      padding: 12px 8px;
-      transition: background .15s;
-    }
-
-    .ccp-btn:hover { background: var(--color-bg-secondary); }
-    .ccp-btn.disabled { opacity: .35; pointer-events: none; }
-
-    .ccp-footer {
-      border-top: 1px solid var(--color-border-secondary);
-      color: var(--color-text-supplementary);
-      font-size: 11px;
-      padding: 10px 16px;
-      text-align: center;
-    }
-
-    /* ── Modal (matches ModalTemplate pattern) ── */
-    .modal-overlay {
-      align-items: center;
-      background: rgba(0,0,0,.4);
+      box-shadow: var(--shadow-large);
+      bottom: calc(100% + 6px);
       display: none;
-      inset: 0;
-      justify-content: center;
-      position: fixed;
-      z-index: 100;
+      left: 50%;
+      min-width: 160px;
+      position: absolute;
+      transform: translateX(-50%);
+      z-index: 30;
     }
 
-    .modal-overlay.open { display: flex; }
+    .actions-menu-wrap:hover .actions-popup,
+    .actions-menu-wrap:focus-within .actions-popup { display: block; }
 
-    .modal {
-      background: var(--color-bg-primary);
-      border-radius: 12px;
-      box-shadow: 0 20px 60px rgba(0,0,0,.2);
-      max-height: 80vh;
-      overflow-y: auto;
-      width: 520px;
+    .actions-popup-item {
+      align-items: center; background: none; border: none; cursor: pointer;
+      display: flex; font-size: 13px; gap: 8px; padding: 10px 14px; width: 100%; text-align: left;
     }
+    .actions-popup-item:hover { background: var(--color-bg-secondary); }
+    .actions-popup-item.danger { color: var(--danger); }
+    .actions-popup-item + .actions-popup-item { border-top: 1px solid var(--color-border-secondary); }
 
-    .modal-header {
-      align-items: flex-start;
+    /* Clippy section */
+    .clippy-header {
+      align-items: center;
+      background: linear-gradient(135deg, var(--accent-light) 0%, #f0f9ff 100%);
+      border: 1px solid #c7d2fe;
+      border-radius: var(--radius-button);
       display: flex;
-      justify-content: space-between;
-      padding: 24px 24px 0;
+      gap: 10px;
+      padding: 10px;
     }
 
-    .modal-header h2 { font-size: 20px; font-weight: 700; margin: 0; }
-
-    .modal-subtitle {
-      color: var(--color-text-supplementary);
-      font-size: 14px;
-      margin-top: 4px;
+    .clippy-avatar {
+      align-items: center;
+      background: var(--accent);
+      border-radius: 50%;
+      color: #fff;
+      display: flex;
+      flex-shrink: 0;
+      font-size: 20px;
+      height: 36px;
+      justify-content: center;
+      width: 36px;
     }
 
-    .modal-close {
-      background: none;
-      border: none;
-      color: var(--color-text-supplementary);
-      cursor: pointer;
-      font-size: 22px;
-      padding: 4px;
+    .clippy-header-text strong { display: block; font-size: 13px; }
+    .clippy-header-text span { color: var(--color-text-supplementary); font-size: 11px; }
+
+    .clippy-suggestion {
+      background: var(--color-bg-primary);
+      border: 1px solid var(--color-border-secondary);
+      border-radius: var(--radius-button);
+      padding: 10px;
     }
 
-    .modal-body { padding: 20px 24px; }
-
-    .form-group { margin-bottom: 16px; }
-
-    .form-group label {
-      color: var(--color-text-supplementary);
-      display: block;
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 0.04em;
+    .clippy-suggestion-label {
+      color: var(--accent);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
       margin-bottom: 6px;
       text-transform: uppercase;
     }
 
-    .form-group select,
-    .form-group input,
-    .form-group textarea {
-      border: 1px solid var(--color-border-secondary);
-      border-radius: 6px;
-      font-family: inherit;
-      font-size: 14px;
-      padding: 8px 12px;
-      width: 100%;
+    .clippy-suggestion p { font-size: 12px; margin-bottom: 8px; }
+
+    .clippy-chip-row { display: flex; flex-wrap: wrap; gap: 6px; }
+
+    .clippy-chip {
+      background: var(--accent-light);
+      border: 1px solid #c7d2fe;
+      border-radius: 16px;
+      color: var(--accent);
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+    }
+    .clippy-chip:hover { background: #ddd6fe; }
+
+    .clippy-action-btn {
+      background: none;
+      border: none;
+      color: var(--accent);
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      margin-top: 8px;
+      padding: 0;
+      text-decoration: underline;
     }
 
-    .form-group textarea { min-height: 72px; resize: vertical; }
+    .clippy-chat {
+      background: var(--color-bg-secondary);
+      border-radius: var(--radius-button);
+      flex: 1;
+      font-size: 12px;
+      min-height: 80px;
+      padding: 10px;
+    }
 
+    .clippy-msg {
+      background: var(--color-bg-primary);
+      border-radius: 8px 8px 8px 2px;
+      margin-bottom: 8px;
+      padding: 8px 10px;
+    }
+
+    .ccp-footer {
+      border-top: 1px solid var(--color-border-secondary);
+      color: var(--color-text-supplementary);
+      font-size: 10px;
+      flex-shrink: 0;
+      padding: 8px;
+      text-align: center;
+    }
+
+    .ccp-online-dot {
+      background: var(--success);
+      border-radius: 50%;
+      display: none;
+      height: 8px;
+      width: 8px;
+    }
+
+    .ccp-panel.minimized .ccp-online-dot { display: block; }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      align-items: center; background: rgba(0,0,0,.4); display: none; inset: 0;
+      justify-content: center; position: fixed; z-index: 100;
+    }
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: var(--color-bg-primary); border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.2); max-height: 85vh; overflow-y: auto; width: 540px;
+    }
+
+    .modal-header { align-items: flex-start; display: flex; justify-content: space-between; padding: 24px 24px 0; }
+    .modal-header h2 { font-size: 20px; font-weight: 700; margin: 0; }
+    .modal-subtitle { color: var(--color-text-supplementary); font-size: 14px; margin-top: 4px; }
+    .modal-close { background: none; border: none; color: var(--color-text-supplementary); cursor: pointer; font-size: 22px; padding: 4px; }
+    .modal-body { padding: 20px 24px; }
+    .modal-footer { border-top: 1px solid var(--color-border-secondary); display: flex; gap: 8px; justify-content: flex-end; padding: 16px 24px 20px; }
+
+    .form-group { margin-bottom: 16px; }
+    .form-group label {
+      color: var(--color-text-supplementary); display: block; font-size: 12px; font-weight: 600;
+      letter-spacing: 0.04em; margin-bottom: 6px; text-transform: uppercase;
+    }
+    .form-group select, .form-group input, .form-group textarea {
+      border: 1px solid var(--color-border-secondary); border-radius: 6px;
+      font-family: inherit; font-size: 14px; padding: 8px 12px; width: 100%;
+    }
+    .form-group textarea { min-height: 72px; resize: vertical; }
     .form-row { display: grid; gap: 12px; grid-template-columns: 1fr 1fr; }
 
-    .modal-footer {
-      border-top: 1px solid var(--color-border-secondary);
-      display: flex;
-      gap: 8px;
-      justify-content: flex-end;
-      padding: 16px 24px 20px;
+    /* Validation step */
+    .validation-intro {
+      color: var(--color-text-supplementary);
+      font-size: 13px;
+      margin-bottom: 16px;
     }
+
+    .check-list { display: flex; flex-direction: column; gap: 10px; }
+
+    .check-item {
+      align-items: flex-start;
+      background: var(--color-bg-secondary);
+      border: 1px solid var(--color-border-secondary);
+      border-radius: var(--radius-button);
+      display: flex;
+      gap: 12px;
+      padding: 12px 14px;
+      transition: border-color .2s, background .2s;
+    }
+
+    .check-item.running { border-color: var(--accent); background: var(--accent-light); }
+    .check-item.pass { border-color: #86efac; background: var(--success-bg); }
+    .check-item.warn { border-color: #fcd34d; background: var(--warning-bg); }
+
+    .check-icon {
+      align-items: center;
+      border-radius: 50%;
+      display: flex;
+      flex-shrink: 0;
+      font-size: 14px;
+      height: 24px;
+      justify-content: center;
+      width: 24px;
+    }
+
+    .check-item.pending .check-icon { background: #e5e7eb; color: var(--color-text-supplementary); }
+    .check-item.running .check-icon { background: var(--accent); color: #fff; }
+    .check-item.pass .check-icon { background: var(--success); color: #fff; }
+    .check-item.warn .check-icon { background: var(--warning); color: #fff; }
+
+    .check-content { flex: 1; min-width: 0; }
+    .check-content strong { display: block; font-size: 13px; margin-bottom: 2px; }
+    .check-content span { color: var(--color-text-supplementary); font-size: 12px; }
+
+    .spinner {
+      animation: spin 0.8s linear infinite;
+      border: 2px solid rgba(255,255,255,.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      height: 14px;
+      width: 14px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .dup-alert {
+      background: var(--warning-bg);
+      border: 1px solid #fcd34d;
+      border-radius: var(--radius-button);
+      font-size: 12px;
+      margin-top: 12px;
+      padding: 10px 12px;
+    }
+
+    .dup-alert a { color: var(--accent); cursor: pointer; font-weight: 600; }
+
+    .modal-steps { display: flex; gap: 8px; margin-bottom: 16px; }
+    .modal-step {
+      color: var(--color-text-supplementary);
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .modal-step.active { color: var(--accent); }
+    .modal-step.done { color: var(--success); }
 
     .hidden { display: none !important; }
   </style>
@@ -660,25 +563,20 @@
 <body>
 
 <div class="demo-banner">
-  DEMO MOCKUP — Based on <code>web-ux/agent-portal</code> (AP 3.0) + proposed Cases tab + Amazon Connect CCP (UI only)
+  DEMO — <code>web-ux/agent-portal</code> + Cases + Connect CCP + Clippy (UI only)
 </div>
 
-<!-- Global header -->
 <header class="global-header">
   <div class="header-lead">
     <a class="brand-link" href="#" onclick="return false">
-      <svg class="logo" viewBox="0 0 30 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path clip-rule="evenodd" d="M13.9373 18.8506C12.9529 18.8506 12.46 18.3651 12.46 17.5666C12.46 16.0857 14.1171 15.5802 17.1415 15.2586C17.1415 17.2396 15.8021 18.8506 13.9373 18.8506ZM15.2414 7.70475C13.0806 7.70475 10.5941 8.72297 9.24446 9.79863L10.4772 12.3928C11.5597 11.4029 13.3095 10.556 14.8882 10.556C16.3882 10.556 17.2164 11.0576 17.2164 12.0676C17.2164 12.7473 16.6675 13.0909 15.6303 13.2256C11.7538 13.7287 8.71289 14.7989 8.71289 17.7867C8.71289 20.1556 10.4 21.588 13.0346 21.588C14.9142 21.588 16.5883 20.5431 17.3841 19.1646V21.2025H20.8884V12.6631C20.8884 9.1371 18.4369 7.70471 15.2414 7.70471Z" fill="currentColor" fill-rule="evenodd"/>
-        <path clip-rule="evenodd" d="M5.11825 21.2029C3.93739 19.4175 3.26236 17.3454 3.16489 15.207C3.06741 13.0686 3.55115 10.9438 4.56469 9.05829C5.57822 7.17281 7.08368 5.59717 8.92105 4.49884C10.7584 3.4005 12.8591 2.82051 14.9997 2.82051C17.1403 2.82051 19.2409 3.4005 21.0783 4.49884C22.9157 5.59717 24.4211 7.17281 25.4347 9.05829C26.4482 10.9438 26.9319 13.0686 26.8345 15.207C26.737 17.3454 26.062 19.4175 24.8811 21.2029H28.1318C29.2439 18.9668 29.7667 16.4838 29.6505 13.9891C29.5342 11.4944 28.7829 9.07067 27.4677 6.94764C26.1525 4.82461 24.317 3.07258 22.1351 1.85759C19.9531 0.642595 17.4971 0.00488281 14.9997 0.00488281C12.5023 0.00488281 10.0462 0.642595 7.8643 1.85759C5.68237 3.07258 3.84683 4.82461 2.53162 6.94764C1.21641 9.07067 0.465107 11.4944 0.348897 13.9891C0.232688 16.4838 0.755426 18.9668 1.86757 21.2029H5.11825Z" fill="#4A4AF4" fill-rule="evenodd"/>
-      </svg>
+      <svg class="logo" viewBox="0 0 30 22" fill="none"><path clip-rule="evenodd" d="M13.9373 18.8506C12.9529 18.8506 12.46 18.3651 12.46 17.5666C12.46 16.0857 14.1171 15.5802 17.1415 15.2586C17.1415 17.2396 15.8021 18.8506 13.9373 18.8506ZM15.2414 7.70475C13.0806 7.70475 10.5941 8.72297 9.24446 9.79863L10.4772 12.3928C11.5597 11.4029 13.3095 10.556 14.8882 10.556C16.3882 10.556 17.2164 11.0576 17.2164 12.0676C17.2164 12.7473 16.6675 13.0909 15.6303 13.2256C11.7538 13.7287 8.71289 14.7989 8.71289 17.7867C8.71289 20.1556 10.4 21.588 13.0346 21.588C14.9142 21.588 16.5883 20.5431 17.3841 19.1646V21.2025H20.8884V12.6631C20.8884 9.1371 18.4369 7.70471 15.2414 7.70471Z" fill="currentColor" fill-rule="evenodd"/><path clip-rule="evenodd" d="M5.11825 21.2029C3.93739 19.4175 3.26236 17.3454 3.16489 15.207C3.06741 13.0686 3.55115 10.9438 4.56469 9.05829C5.57822 7.17281 7.08368 5.59717 8.92105 4.49884C10.7584 3.4005 12.8591 2.82051 14.9997 2.82051C17.1403 2.82051 19.2409 3.4005 21.0783 4.49884C22.9157 5.59717 24.4211 7.17281 25.4347 9.05829C26.4482 10.9438 26.9319 13.0686 26.8345 15.207C26.737 17.3454 26.062 19.4175 24.8811 21.2029H28.1318C29.2439 18.9668 29.7667 16.4838 29.6505 13.9891C29.5342 11.4944 28.7829 9.07067 27.4677 6.94764C26.1525 4.82461 24.317 3.07258 22.1351 1.85759C19.9531 0.642595 17.4971 0.00488281 14.9997 0.00488281C12.5023 0.00488281 10.0462 0.642595 7.8643 1.85759C5.68237 3.07258 3.84683 4.82461 2.53162 6.94764C1.21641 9.07067 0.465107 11.4944 0.348897 13.9891C0.232688 16.4838 0.755426 18.9668 1.86757 21.2029H5.11825Z" fill="#4A4AF4" fill-rule="evenodd"/></svg>
     </a>
-    <nav class="breadcrumb" aria-label="Breadcrumb">
+    <nav class="breadcrumb">
       <a class="breadcrumb-link" href="#" onclick="return false">US</a>
       <span class="breadcrumb-sep">›</span>
       <span class="breadcrumb-current">Sarah Mitchell</span>
     </nav>
   </div>
-
   <div class="header-search">
     <div class="search-pill">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
@@ -686,17 +584,15 @@
       <span class="search-mode">General ▾</span>
     </div>
   </div>
-
   <div class="header-right">
     <button class="geo-btn" type="button">US ▾</button>
-    <button class="icon-btn" type="button" title="Toggle theme" aria-label="Toggle theme">
+    <button class="icon-btn" type="button" aria-label="Toggle theme">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg>
     </button>
   </div>
 </header>
 
-<div class="shell">
-  <!-- Collapsed nav (customer-page-shell navItems + Cases) -->
+<div class="shell" id="shell">
   <nav class="collapsed-nav" aria-label="Customer navigation">
     <a class="nav-item" href="#" onclick="switchNav('home'); return false" data-nav="home">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
@@ -707,7 +603,7 @@
       <span class="tooltip">Customer</span>
     </a>
     <a class="nav-item active new" href="#" onclick="switchNav('cases'); return false" data-nav="cases">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
       <span class="tooltip">Cases</span>
     </a>
     <a class="nav-item" href="#" onclick="switchNav('transactions'); return false" data-nav="transactions">
@@ -724,14 +620,11 @@
     </a>
   </nav>
 
-  <!-- Main -->
   <div class="main">
     <div class="page">
       <header class="page-header">
         <div class="header-row">
-          <div class="header-left">
-            <h1 class="page-title" id="page-title">Cases</h1>
-          </div>
+          <div class="header-left"><h1 class="page-title" id="page-title">Cases</h1></div>
           <div class="header-actions" id="header-actions">
             <button class="btn btn-primary" type="button" onclick="openModal()">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
@@ -739,16 +632,13 @@
             </button>
           </div>
         </div>
-
-        <!-- Sub-tabs on customer person view only -->
         <div class="tabs hidden" id="person-tabs">
-          <button class="tab active" type="button" data-ptab="overview" onclick="switchPersonTab('overview')">Overview</button>
-          <button class="tab" type="button" data-ptab="accounts" onclick="switchPersonTab('accounts')">Accounts</button>
+          <button class="tab active" type="button">Overview</button>
+          <button class="tab" type="button">Accounts</button>
         </div>
       </header>
 
       <div class="content-surface">
-        <!-- Person / Overview -->
         <div class="tab-panel" id="panel-person">
           <div class="grid-2">
             <div class="card"><h4>Active Loans</h4><div class="value">2</div><div class="sub">$1,247.50 remaining</div></div>
@@ -758,24 +648,14 @@
           </div>
         </div>
 
-        <!-- Cases (proposed) -->
         <div class="tab-panel active" id="panel-cases">
-          <div class="cases-toolbar">
-            <h3>Cases for Sarah Mitchell</h3>
-          </div>
+          <div class="cases-toolbar"><h3>Cases for Sarah Mitchell</h3></div>
           <table class="data-table">
             <thead>
-              <tr>
-                <th>Case #</th>
-                <th>Classification</th>
-                <th>Origin</th>
-                <th>Status</th>
-                <th>Queue</th>
-                <th>Created</th>
-              </tr>
+              <tr><th>Case #</th><th>Classification</th><th>Origin</th><th>Status</th><th>Queue</th><th>Created</th></tr>
             </thead>
             <tbody id="cases-body">
-              <tr>
+              <tr id="dup-case-row">
                 <td><strong>00048291</strong></td>
                 <td>Payment / Payment Inquiry</td>
                 <td>Phone</td>
@@ -795,169 +675,234 @@
           </table>
         </div>
 
-        <!-- Placeholder nav sections -->
-        <div class="tab-panel" id="panel-transactions">
-          <p style="color:var(--color-text-supplementary);">Transactions — Loans, Orders, Affirm Card, etc. (existing AP 3.0)</p>
-        </div>
-        <div class="tab-panel" id="panel-history">
-          <p style="color:var(--color-text-supplementary);">Customer history (existing AP 3.0)</p>
-        </div>
-        <div class="tab-panel" id="panel-communications">
-          <p style="color:var(--color-text-supplementary);">Communications (existing AP 3.0)</p>
-        </div>
-        <div class="tab-panel" id="panel-home">
-          <p style="color:var(--color-text-supplementary);">Search landing (existing AP 3.0 home)</p>
-        </div>
+        <div class="tab-panel" id="panel-transactions"><p style="color:var(--color-text-supplementary)">Transactions (existing AP 3.0)</p></div>
+        <div class="tab-panel" id="panel-history"><p style="color:var(--color-text-supplementary)">History (existing AP 3.0)</p></div>
+        <div class="tab-panel" id="panel-communications"><p style="color:var(--color-text-supplementary)">Communications (existing AP 3.0)</p></div>
+        <div class="tab-panel" id="panel-home"><p style="color:var(--color-text-supplementary)">Search landing (existing AP 3.0)</p></div>
       </div>
     </div>
   </div>
 
-  <!-- Amazon Connect CCP (persistent right dock) -->
-  <aside class="ccp-panel" aria-label="Amazon Connect phone">
+  <!-- CCP + Clippy widget -->
+  <aside class="ccp-panel" id="ccp-panel" aria-label="Phone and Clippy">
     <div class="ccp-header">
       <h3>
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
         Phone
+        <span class="ccp-online-dot" id="ccp-online-dot"></span>
       </h3>
-      <div class="online-toggle" onclick="toggleOnline()" id="online-toggle" role="switch" aria-checked="false" tabindex="0" onkeydown="if(event.key===' '||event.key==='Enter'){event.preventDefault();toggleOnline();}">
-        <span class="toggle-label off" id="toggle-label">Offline</span>
-        <div class="toggle-track" id="toggle-track"><div class="toggle-thumb"></div></div>
+      <div class="ccp-header-controls">
+        <div class="online-toggle" onclick="toggleOnline()" id="online-toggle" role="switch" aria-checked="false" tabindex="0">
+          <span class="toggle-label off" id="toggle-label">Offline</span>
+          <div class="toggle-track" id="toggle-track"><div class="toggle-thumb"></div></div>
+        </div>
+        <button class="ccp-icon-btn" type="button" id="ccp-minimize-btn" onclick="toggleCcpMinimize()" title="Minimize panel" aria-label="Minimize phone panel">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="ccp-minimize-icon"><path d="M18 15l-6-6-6 6"/></svg>
+        </button>
       </div>
+    </div>
+
+    <div class="ccp-section-tabs">
+      <button class="ccp-section-tab active" type="button" data-ccp-section="connect" onclick="switchCcpSection('connect')">Connect</button>
+      <button class="ccp-section-tab" type="button" data-ccp-section="clippy" onclick="switchCcpSection('clippy')">Clippy</button>
     </div>
 
     <div class="ccp-body">
-      <div class="ccp-status" id="ccp-status">
-        <div class="icon">📴</div>
-        <div class="label">You are offline</div>
-        <div class="sublabel">Toggle online to receive calls</div>
+      <!-- Connect section -->
+      <div class="ccp-section active" id="ccp-section-connect">
+        <div class="ccp-status" id="ccp-status">
+          <div class="icon">📴</div>
+          <div class="label">You are offline</div>
+          <div class="sublabel">Toggle online to receive calls</div>
+        </div>
+
+        <div class="ccp-queue hidden" id="ccp-queue">
+          <strong>FO General — Phone</strong>
+          <span style="color:var(--color-text-supplementary)">Routing profile: US Tier 1</span>
+        </div>
+
+        <div class="ccp-metrics" id="ccp-metrics" style="opacity:.35">
+          <div class="ccp-metric"><div class="num" id="metric-calls">0</div><div class="lbl">Calls today</div></div>
+          <div class="ccp-metric"><div class="num">4:12</div><div class="lbl">Avg handle</div></div>
+        </div>
+
+        <div class="call-bar" id="call-bar">
+          <button class="call-bar-btn accept disabled" id="btn-accept" type="button" disabled onclick="simulateIncomingCall()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            Accept
+          </button>
+
+          <div class="actions-menu-wrap" id="actions-menu-wrap">
+            <button class="actions-menu-trigger disabled" id="actions-trigger" type="button" disabled>
+              ⋯ Actions
+            </button>
+            <div class="actions-popup" id="actions-popup">
+              <button class="actions-popup-item" type="button" onclick="showToast('Call on hold')">⏸ Hold</button>
+              <button class="actions-popup-item" type="button" onclick="showToast('Transfer flow opened')">↗ Transfer</button>
+              <button class="actions-popup-item" type="button" onclick="showToast('Microphone muted')">🔇 Mute</button>
+              <button class="actions-popup-item" type="button" onclick="showToast('After-call work started')">⏱ ACW</button>
+              <button class="actions-popup-item danger" type="button" onclick="endCall()">✕ End call</button>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div class="ccp-queue hidden" id="ccp-queue">
-        <strong>FO General — Phone</strong>
-        <span style="color:var(--color-text-supplementary)">Routing profile: US Tier 1</span>
-      </div>
+      <!-- Clippy section -->
+      <div class="ccp-section" id="ccp-section-clippy">
+        <div class="clippy-header">
+          <div class="clippy-avatar">📎</div>
+          <div class="clippy-header-text">
+            <strong>Clippy</strong>
+            <span>AI assistant · embedded in phone widget</span>
+          </div>
+        </div>
 
-      <div class="ccp-metrics" id="ccp-metrics" style="opacity:.35">
-        <div class="ccp-metric"><div class="num" id="metric-calls">0</div><div class="lbl">Calls today</div></div>
-        <div class="ccp-metric"><div class="num">—</div><div class="lbl">Avg handle</div></div>
-      </div>
+        <div class="clippy-suggestion">
+          <div class="clippy-suggestion-label">Suggested classification</div>
+          <p>Caller asking about a recent autopay charge — matches <strong>Payment / Payment Inquiry</strong>.</p>
+          <div class="clippy-chip-row">
+            <span class="clippy-chip" onclick="applyClippyClassification()">Payment Inquiry</span>
+            <span class="clippy-chip">Autopay Issue</span>
+            <span class="clippy-chip">Refund Request</span>
+          </div>
+          <button class="clippy-action-btn" type="button" onclick="openModalFromClippy()">→ Pre-fill case form</button>
+        </div>
 
-      <div class="ccp-controls">
-        <button class="ccp-btn disabled" id="btn-accept" type="button" disabled>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-          Accept
-        </button>
-        <button class="ccp-btn disabled" id="btn-hold" type="button" disabled>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
-          Hold
-        </button>
-        <button class="ccp-btn disabled" id="btn-transfer" type="button" disabled>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>
-          Transfer
-        </button>
-        <button class="ccp-btn disabled" id="btn-mute" type="button" disabled>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8"/></svg>
-          Mute
-        </button>
-        <button class="ccp-btn disabled" id="btn-end" type="button" disabled>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-          End
-        </button>
-        <button class="ccp-btn disabled" id="btn-acw" type="button" disabled>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-          ACW
+        <div class="clippy-chat">
+          <div class="clippy-msg">
+            <strong>Clippy:</strong> I found an open case <strong>#00048291</strong> (Payment Inquiry, In Progress) from earlier today. Consider linking instead of creating a duplicate.
+          </div>
+          <div class="clippy-msg">
+            <strong>Clippy:</strong> Customer has 2 active loans. Last payment $62.38 on Mar 15 via autopay.
+          </div>
+        </div>
+
+        <button class="btn btn-secondary" type="button" style="width:100%;justify-content:center;font-size:12px;padding:8px" onclick="switchCcpSection('connect')">
+          Back to call controls
         </button>
       </div>
     </div>
 
-    <div class="ccp-footer">Amazon Connect CCP — UI mockup only</div>
+    <div class="ccp-footer">Connect CCP + Clippy — UI mockup</div>
   </aside>
 </div>
 
-<!-- Create Case modal -->
-<div class="modal-overlay" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+<!-- Create Case modal (2-step: form → validation) -->
+<div class="modal-overlay" id="modal" role="dialog" aria-modal="true">
   <div class="modal">
     <div class="modal-header">
       <div>
         <h2 id="modal-title">Create New Case</h2>
-        <p class="modal-subtitle">Case will be created in Salesforce for Sarah Mitchell</p>
+        <p class="modal-subtitle" id="modal-subtitle">Case will be created in Salesforce for Sarah Mitchell</p>
+        <div class="modal-steps" id="modal-steps">
+          <span class="modal-step active" id="step-indicator-1">① Details</span>
+          <span>→</span>
+          <span class="modal-step" id="step-indicator-2">② Validation</span>
+        </div>
       </div>
       <button class="modal-close" type="button" onclick="closeModal()" aria-label="Close">&times;</button>
     </div>
-    <div class="modal-body">
+
+    <!-- Step 1: Form -->
+    <div class="modal-body" id="modal-step-form">
       <div class="form-row">
         <div class="form-group">
           <label for="case-name">Case Name</label>
-          <select id="case-name">
-            <option>Payment</option>
-            <option>Account</option>
-            <option>Order</option>
-            <option>Dispute</option>
-          </select>
+          <select id="case-name"><option>Payment</option><option>Account</option><option>Order</option><option>Dispute</option></select>
         </div>
         <div class="form-group">
           <label for="classification">Classification</label>
-          <select id="classification">
-            <option>Payment Inquiry</option>
-            <option>Refund Request</option>
-            <option>Autopay Issue</option>
-          </select>
+          <select id="classification"><option>Payment Inquiry</option><option>Refund Request</option><option>Autopay Issue</option></select>
         </div>
       </div>
       <div class="form-row">
         <div class="form-group">
           <label for="origin">Origin</label>
-          <select id="origin">
-            <option selected>Phone</option>
-            <option>Chat</option>
-            <option>Email</option>
-          </select>
+          <select id="origin"><option selected>Phone</option><option>Chat</option><option>Email</option></select>
         </div>
         <div class="form-group">
           <label for="product">Product</label>
-          <select id="product">
-            <option>Installment Loan</option>
-            <option>Debit Card</option>
-            <option>Affirm Money</option>
-          </select>
+          <select id="product"><option>Installment Loan</option><option>Debit Card</option><option>Affirm Money</option></select>
         </div>
       </div>
       <div class="form-group">
         <label for="description">Description</label>
-        <textarea id="description" placeholder="Customer called regarding..."></textarea>
+        <textarea id="description" placeholder="Customer called regarding autopay charge..."></textarea>
       </div>
       <div class="form-group">
         <label for="queue">Route to Queue</label>
-        <select id="queue">
-          <option>FO General</option>
-          <option>Tier 1</option>
-          <option>Customer Ops</option>
-          <option>Payments</option>
-        </select>
+        <select id="queue"><option>FO General</option><option>Tier 1</option><option>Customer Ops</option><option>Payments</option></select>
       </div>
     </div>
+
+    <!-- Step 2: Validation checks -->
+    <div class="modal-body hidden" id="modal-step-validation">
+      <p class="validation-intro">Running pre-create checks in Agent Portal before writing to Salesforce…</p>
+      <div class="check-list" id="check-list">
+        <div class="check-item pending" id="check-dup">
+          <div class="check-icon">○</div>
+          <div class="check-content">
+            <strong>Duplicate case detection</strong>
+            <span>Scanning open cases for same customer + classification</span>
+          </div>
+        </div>
+        <div class="check-item pending" id="check-fields">
+          <div class="check-icon">○</div>
+          <div class="check-content">
+            <strong>Required field completion</strong>
+            <span>Validating taxonomy, origin, product, and description</span>
+          </div>
+        </div>
+        <div class="check-item pending" id="check-routing">
+          <div class="check-icon">○</div>
+          <div class="check-content">
+            <strong>Queue routing rules</strong>
+            <span>Resolving CMS taxonomy → queue assignment</span>
+          </div>
+        </div>
+        <div class="check-item pending" id="check-brand">
+          <div class="check-icon">○</div>
+          <div class="check-content">
+            <strong>Brand &amp; region alignment</strong>
+            <span>Confirming US / Affirm brand context on case</span>
+          </div>
+        </div>
+        <div class="check-item pending" id="check-sla">
+          <div class="check-icon">○</div>
+          <div class="check-content">
+            <strong>SLA &amp; compliance flags</strong>
+            <span>Checking vulnerable customer tags and regulatory holds</span>
+          </div>
+        </div>
+      </div>
+      <div class="dup-alert hidden" id="dup-alert">
+        ⚠️ Possible duplicate: Case <strong>#00048291</strong> (Payment Inquiry, In Progress) was opened today.
+        <a onclick="closeModal()">View existing case</a> or proceed to create anyway.
+      </div>
+    </div>
+
     <div class="modal-footer">
       <button class="btn btn-secondary" type="button" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-primary" type="button" onclick="createCase()">Create Case</button>
+      <button class="btn btn-primary" type="button" id="modal-next-btn" onclick="handleModalNext()">Next</button>
+      <button class="btn btn-primary hidden" type="button" id="modal-create-btn" disabled onclick="createCase()">Create Case</button>
     </div>
   </div>
 </div>
 
+<div id="toast" style="display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1f2937;color:#fff;padding:10px 18px;border-radius:8px;font-size:13px;font-weight:600;z-index:200;box-shadow:var(--shadow-large)"></div>
+
 <script>
   const panels = ['home', 'person', 'cases', 'transactions', 'history', 'communications'];
-  const titles = {
-    home: 'Search',
-    person: 'Sarah Mitchell',
-    cases: 'Cases',
-    transactions: 'Transactions',
-    history: 'History',
-    communications: 'Communications',
-  };
+  const titles = { home: 'Search', person: 'Sarah Mitchell', cases: 'Cases', transactions: 'Transactions', history: 'History', communications: 'Communications' };
+
+  let isOnline = false;
+  let onCall = false;
+  let ccpMinimized = false;
+  let modalStep = 1;
+  let caseCounter = 48292;
 
   function switchNav(nav) {
-    document.querySelectorAll('.nav-item').forEach(el => {
-      el.classList.toggle('active', el.dataset.nav === nav);
-    });
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.toggle('active', el.dataset.nav === nav));
     panels.forEach(p => {
       const panel = document.getElementById('panel-' + p);
       if (panel) panel.classList.toggle('active', p === nav);
@@ -969,13 +914,25 @@
       : '';
   }
 
-  function switchPersonTab(tab) {
-    document.querySelectorAll('#person-tabs .tab').forEach(el => {
-      el.classList.toggle('active', el.dataset.ptab === tab);
-    });
+  function switchCcpSection(section) {
+    document.querySelectorAll('.ccp-section-tab').forEach(t => t.classList.toggle('active', t.dataset.ccpSection === section));
+    document.querySelectorAll('.ccp-section').forEach(s => s.classList.toggle('active', s.id === 'ccp-section-' + section));
+    if (ccpMinimized) toggleCcpMinimize(false);
   }
 
-  let isOnline = false;
+  function toggleCcpMinimize(force) {
+    ccpMinimized = force !== undefined ? !force : !ccpMinimized;
+    const panel = document.getElementById('ccp-panel');
+    const shell = document.getElementById('shell');
+    const icon = document.getElementById('ccp-minimize-icon');
+    panel.classList.toggle('minimized', ccpMinimized);
+    shell.classList.toggle('ccp-minimized', ccpMinimized);
+    icon.innerHTML = ccpMinimized
+      ? '<path d="M6 9l6 6 6-6"/>'
+      : '<path d="M18 15l-6-6-6 6"/>';
+    document.getElementById('ccp-minimize-btn').title = ccpMinimized ? 'Expand panel' : 'Minimize panel';
+  }
+
   function toggleOnline() {
     isOnline = !isOnline;
     const track = document.getElementById('toggle-track');
@@ -983,58 +940,181 @@
     const status = document.getElementById('ccp-status');
     const metrics = document.getElementById('ccp-metrics');
     const queue = document.getElementById('ccp-queue');
-    const toggle = document.getElementById('online-toggle');
-    const btns = document.querySelectorAll('.ccp-btn');
+    const dot = document.getElementById('ccp-online-dot');
+    const acceptBtn = document.getElementById('btn-accept');
 
-    toggle.setAttribute('aria-checked', isOnline);
+    document.getElementById('online-toggle').setAttribute('aria-checked', isOnline);
+    dot.style.display = isOnline ? 'block' : 'none';
 
     if (isOnline) {
       track.classList.add('on');
       label.textContent = 'Online';
       label.className = 'toggle-label on';
-      status.className = 'ccp-status available';
-      status.innerHTML = '<div class="icon">🟢</div><div class="label">Available — Phone</div><div class="sublabel">Waiting for incoming calls…</div>';
+      if (!onCall) {
+        status.className = 'ccp-status available';
+        status.innerHTML = '<div class="icon">🟢</div><div class="label">Available — Phone</div><div class="sublabel">Waiting for incoming calls…</div>';
+      }
       metrics.style.opacity = '1';
       queue.classList.remove('hidden');
-      btns.forEach(b => { b.classList.remove('disabled'); b.disabled = false; });
+      acceptBtn.classList.remove('disabled');
+      acceptBtn.disabled = false;
     } else {
       track.classList.remove('on');
       label.textContent = 'Offline';
       label.className = 'toggle-label off';
+      onCall = false;
       status.className = 'ccp-status';
       status.innerHTML = '<div class="icon">📴</div><div class="label">You are offline</div><div class="sublabel">Toggle online to receive calls</div>';
       metrics.style.opacity = '.35';
       queue.classList.add('hidden');
-      btns.forEach(b => { b.classList.add('disabled'); b.disabled = true; });
+      acceptBtn.classList.add('disabled');
+      acceptBtn.disabled = true;
+      setCallControlsEnabled(false);
     }
   }
 
-  function openModal() { document.getElementById('modal').classList.add('open'); }
-  function closeModal() { document.getElementById('modal').classList.remove('open'); }
+  function simulateIncomingCall() {
+    if (!isOnline || onCall) return;
+    const status = document.getElementById('ccp-status');
+    status.className = 'ccp-status on-call';
+    status.innerHTML = '<div class="icon">📞</div><div class="label">Incoming call</div><div class="sublabel">+1 (415) 555-0142 · Sarah Mitchell</div>';
+    document.getElementById('btn-accept').textContent = 'Accept';
+    setTimeout(() => {
+      if (!onCall && isOnline) acceptCall();
+    }, 1200);
+  }
 
-  document.getElementById('modal').addEventListener('click', (e) => {
-    if (e.target.id === 'modal') closeModal();
-  });
+  function acceptCall() {
+    onCall = true;
+    const status = document.getElementById('ccp-status');
+    status.className = 'ccp-status on-call';
+    status.innerHTML = '<div class="icon">🗣️</div><div class="label">On call — 0:00</div><div class="sublabel">+1 (415) 555-0142 · Sarah Mitchell</div>';
+    document.getElementById('btn-accept').classList.add('disabled');
+    document.getElementById('btn-accept').disabled = true;
+    setCallControlsEnabled(true);
+    switchCcpSection('clippy');
+    showToast('Call connected — Clippy activated');
+  }
 
-  let caseCounter = 48292;
+  function endCall() {
+    onCall = false;
+    setCallControlsEnabled(false);
+    const status = document.getElementById('ccp-status');
+    if (isOnline) {
+      status.className = 'ccp-status available';
+      status.innerHTML = '<div class="icon">🟢</div><div class="label">Available — Phone</div><div class="sublabel">After-call work complete</div>';
+      document.getElementById('btn-accept').classList.remove('disabled');
+      document.getElementById('btn-accept').disabled = false;
+      document.getElementById('btn-accept').innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg> Accept';
+    }
+    showToast('Call ended');
+  }
+
+  function setCallControlsEnabled(enabled) {
+    const trigger = document.getElementById('actions-trigger');
+    trigger.classList.toggle('disabled', !enabled);
+    trigger.disabled = !enabled;
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.display = 'block';
+    clearTimeout(t._timer);
+    t._timer = setTimeout(() => { t.style.display = 'none'; }, 2200);
+  }
+
+  function openModal() { resetModal(); document.getElementById('modal').classList.add('open'); }
+  function openModalFromClippy() {
+    document.getElementById('classification').value = 'Payment Inquiry';
+    document.getElementById('description').value = 'Customer called regarding recent autopay charge on installment loan.';
+    openModal();
+  }
+  function applyClippyClassification() {
+    document.getElementById('classification').value = 'Payment Inquiry';
+    showToast('Classification applied from Clippy');
+  }
+
+  function closeModal() {
+    document.getElementById('modal').classList.remove('open');
+    resetModal();
+  }
+
+  function resetModal() {
+    modalStep = 1;
+    document.getElementById('modal-step-form').classList.remove('hidden');
+    document.getElementById('modal-step-validation').classList.add('hidden');
+    document.getElementById('modal-next-btn').classList.remove('hidden');
+    document.getElementById('modal-create-btn').classList.add('hidden');
+    document.getElementById('modal-create-btn').disabled = true;
+    document.getElementById('dup-alert').classList.add('hidden');
+    document.getElementById('step-indicator-1').className = 'modal-step active';
+    document.getElementById('step-indicator-2').className = 'modal-step';
+    ['dup','fields','routing','brand','sla'].forEach(id => {
+      const el = document.getElementById('check-' + id);
+      el.className = 'check-item pending';
+      el.querySelector('.check-icon').innerHTML = '○';
+      el.querySelector('.check-content span').textContent = el.querySelector('.check-content span').dataset.default || el.querySelector('.check-content span').textContent;
+    });
+  }
+
+  document.querySelectorAll('.check-content span').forEach(s => { s.dataset.default = s.textContent; });
+
+  function handleModalNext() {
+    if (modalStep === 1) {
+      modalStep = 2;
+      document.getElementById('modal-step-form').classList.add('hidden');
+      document.getElementById('modal-step-validation').classList.remove('hidden');
+      document.getElementById('modal-next-btn').classList.add('hidden');
+      document.getElementById('step-indicator-1').className = 'modal-step done';
+      document.getElementById('step-indicator-2').className = 'modal-step active';
+      runValidationChecks();
+    }
+  }
+
+  async function runValidationChecks() {
+    const checks = [
+      { id: 'dup', delay: 900, result: 'warn', detail: '1 possible duplicate found — Case #00048291 (Payment Inquiry, open)' },
+      { id: 'fields', delay: 700, result: 'pass', detail: 'All required fields present — taxonomy, origin, product, description' },
+      { id: 'routing', delay: 800, result: 'pass', detail: 'Resolved to FO General via Payment → Payment Inquiry' },
+      { id: 'brand', delay: 600, result: 'pass', detail: 'US region · Affirm brand · Person set linked' },
+      { id: 'sla', delay: 750, result: 'pass', detail: 'No regulatory holds · Standard SLA applies' },
+    ];
+
+    for (const check of checks) {
+      const el = document.getElementById('check-' + check.id);
+      el.className = 'check-item running';
+      el.querySelector('.check-icon').innerHTML = '<div class="spinner"></div>';
+      await sleep(check.delay);
+      el.className = 'check-item ' + check.result;
+      el.querySelector('.check-icon').innerHTML = check.result === 'pass' ? '✓' : '⚠';
+      el.querySelector('.check-content span').textContent = check.detail;
+      if (check.id === 'dup') document.getElementById('dup-alert').classList.remove('hidden');
+    }
+
+    document.getElementById('modal-create-btn').classList.remove('hidden');
+    document.getElementById('modal-create-btn').disabled = false;
+    document.getElementById('step-indicator-2').className = 'modal-step done';
+  }
+
+  function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
   function createCase() {
     const tbody = document.getElementById('cases-body');
     const row = document.createElement('tr');
     const now = new Date();
     const timeStr = 'Today, ' + now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-    row.innerHTML = `
-      <td><strong>${String(caseCounter++).padStart(8, '0')}</strong></td>
-      <td>Payment / Payment Inquiry</td>
-      <td>Phone</td>
+    row.innerHTML = `<td><strong>${String(caseCounter++).padStart(8, '0')}</strong></td>
+      <td>Payment / Payment Inquiry</td><td>Phone</td>
       <td><span class="status-pill status-open">New</span></td>
-      <td>FO General</td>
-      <td>${timeStr}</td>
-    `;
+      <td>FO General</td><td>${timeStr}</td>`;
     tbody.insertBefore(row, tbody.firstChild);
     closeModal();
     switchNav('cases');
+    showToast('Case created in Salesforce');
   }
-</script>
 
+  document.getElementById('modal').addEventListener('click', e => { if (e.target.id === 'modal') closeModal(); });
+</script>
 </body>
 </html>
