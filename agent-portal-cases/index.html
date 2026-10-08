@@ -204,15 +204,18 @@
     .ccp-panel.minimized .ccp-body,
     .ccp-panel.minimized .ccp-footer,
     .ccp-panel.minimized .ccp-section-tabs,
-    .ccp-panel.minimized .ccp-header-controls { display: none; }
+    .ccp-panel.minimized .ccp-online-controls { display: none; }
 
     .ccp-panel.minimized .ccp-header {
+      cursor: pointer;
       flex-direction: column;
       gap: 12px;
       height: 100%;
       justify-content: flex-start;
       padding: 12px 6px;
     }
+
+    .ccp-panel.minimized .ccp-header:hover { background: var(--color-bg-secondary); }
 
     .ccp-panel.minimized .ccp-header h3 {
       flex-direction: column;
@@ -224,6 +227,13 @@
     }
 
     .ccp-panel.minimized .ccp-header h3 svg { transform: rotate(180deg); }
+
+    .ccp-panel.minimized .ccp-minimize-wrap {
+      display: flex;
+      justify-content: center;
+      margin-top: auto;
+      padding-bottom: 8px;
+    }
 
     .ccp-header {
       align-items: center;
@@ -766,13 +776,17 @@
         <span class="ccp-online-dot" id="ccp-online-dot"></span>
       </h3>
       <div class="ccp-header-controls">
-        <div class="online-toggle" onclick="toggleOnline()" id="online-toggle" role="switch" aria-checked="false" tabindex="0">
-          <span class="toggle-label off" id="toggle-label">Offline</span>
-          <div class="toggle-track" id="toggle-track"><div class="toggle-thumb"></div></div>
+        <div class="ccp-online-controls">
+          <div class="online-toggle" onclick="toggleOnline()" id="online-toggle" role="switch" aria-checked="false" tabindex="0">
+            <span class="toggle-label off" id="toggle-label">Offline</span>
+            <div class="toggle-track" id="toggle-track"><div class="toggle-thumb"></div></div>
+          </div>
         </div>
-        <button class="ccp-icon-btn" type="button" id="ccp-minimize-btn" onclick="toggleCcpMinimize()" title="Minimize panel" aria-label="Minimize phone panel">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="ccp-minimize-icon"><path d="M18 15l-6-6-6 6"/></svg>
-        </button>
+        <div class="ccp-minimize-wrap">
+          <button class="ccp-icon-btn" type="button" id="ccp-minimize-btn" onclick="event.stopPropagation(); toggleCcpMinimize()" title="Minimize panel" aria-label="Minimize phone panel">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="ccp-minimize-icon"><path d="M18 15l-6-6-6 6"/></svg>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -1009,20 +1023,30 @@
   function switchCcpSection(section) {
     document.querySelectorAll('.ccp-section-tab').forEach(t => t.classList.toggle('active', t.dataset.ccpSection === section));
     document.querySelectorAll('.ccp-section').forEach(s => s.classList.toggle('active', s.id === 'ccp-section-' + section));
-    if (ccpMinimized) toggleCcpMinimize(false);
+    if (ccpMinimized) toggleCcpMinimize(true);
   }
 
-  function toggleCcpMinimize(force) {
-    ccpMinimized = force !== undefined ? !force : !ccpMinimized;
+  function toggleCcpMinimize(forceExpand) {
+    if (forceExpand === true) ccpMinimized = false;
+    else if (forceExpand === false) ccpMinimized = true;
+    else ccpMinimized = !ccpMinimized;
+
     const panel = document.getElementById('ccp-panel');
     const shell = document.getElementById('shell');
     const icon = document.getElementById('ccp-minimize-icon');
+    const header = panel.querySelector('.ccp-header');
+
     panel.classList.toggle('minimized', ccpMinimized);
     shell.classList.toggle('ccp-minimized', ccpMinimized);
     icon.innerHTML = ccpMinimized
       ? '<path d="M6 9l6 6 6-6"/>'
       : '<path d="M18 15l-6-6-6 6"/>';
     document.getElementById('ccp-minimize-btn').title = ccpMinimized ? 'Expand panel' : 'Minimize panel';
+    document.getElementById('ccp-minimize-btn').setAttribute('aria-label', ccpMinimized ? 'Expand phone panel' : 'Minimize phone panel');
+
+    header.onclick = ccpMinimized
+      ? () => toggleCcpMinimize(true)
+      : null;
   }
 
   function toggleOnline() {
